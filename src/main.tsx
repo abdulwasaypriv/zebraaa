@@ -8,3 +8,15 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>
 );
+import { Analytics } from '@vercel/analytics/react';
+
+function App() {
+  return (
+    <>
+      {/* your app */}
+      <Analytics />
+    </>
+  );
+}
+
+export default App;
