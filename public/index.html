@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ProfileCraft — GitHub Profile README Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+  :root {
+    --bg: #050508;
+    --surface: #0d0d14;
+    --surface2: #12121c;
+    --border: rgba(120,120,255,0.12);
+    --accent: #6c63ff;
+    --accent2: #00e5ff;
+    --accent3: #ff6b9d;
+    --text: #e8e8ff;
+    --text-dim: #7878aa;
+    --glow: rgba(108,99,255,0.3);
+    --font-head: 'Syne', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --radius: 16px;
+    --transition: 0.35s cubic-bezier(.4,0,.2,1);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-head);
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* ── CANVAS BG ── */
+  #three-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ── GRAIN OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.6;
+  }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 2; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 16px 0;
+    backdrop-filter: blur(24px);
+    background: rgba(5,5,8,0.7);
+    border-bottom: 1px solid var(--border);
+    transition: var(--transition);
+  }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; }
+  .logo {
+    font-size: 1.4rem; font-weight: 800; letter-spacing: -0.04em;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    cursor: pointer;
+  }
+  .logo span { -webkit-text-fill-color: var(--accent3); }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a {
+    color: var(--text-dim); text-decoration: none; font-size: 0.875rem;
+    font-weight: 500; letter-spacing: 0.03em;
+    transition: color var(--transition);
+  }
+  .nav-links a:hover { color: var(--accent2); }
+  .nav-cta {
+    background: linear-gradient(135deg, var(--accent), #8b5cf6);
+    color: #fff; padding: 10px 24px; border-radius: 100px;
+    font-size: 0.875rem; font-weight: 600; cursor: pointer;
+    border: none; letter-spacing: 0.02em;
+    box-shadow: 0 0 20px rgba(108,99,255,0.4);
+    transition: var(--transition);
+  }
+  .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 0 32px rgba(108,99,255,0.6); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 120px 0 80px;
+    position: relative;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(108,99,255,0.12); border: 1px solid rgba(108,99,255,0.3);
+    padding: 6px 16px; border-radius: 100px; font-size: 0.78rem;
+    color: var(--accent2); font-family: var(--font-mono); letter-spacing: 0.08em;
+    margin-bottom: 28px;
+    animation: fadeUp 0.8s ease both;
+  }
+  .hero-badge::before { content: '◉'; font-size: 0.6rem; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .hero h1 {
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -0.04em;
+    margin-bottom: 28px;
+    animation: fadeUp 0.8s 0.15s ease both;
+  }
+  .hero h1 .line1 { display: block; color: var(--text); }
+  .hero h1 .line2 {
+    display: block;
+    background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: shimmer 3s linear infinite, fadeUp 0.8s 0.2s ease both;
+  }
+  @keyframes shimmer { to { background-position: 200% center; } }
+  .hero-sub {
+    max-width: 540px; font-size: 1.1rem; color: var(--text-dim);
+    line-height: 1.7; font-weight: 400;
+    animation: fadeUp 0.8s 0.3s ease both;
+    margin-bottom: 40px;
+  }
+  .hero-btns {
+    display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.8s 0.45s ease both;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #8b5cf6);
+    color: #fff; padding: 16px 40px;
+    border-radius: 100px; font-size: 1rem;
+    font-weight: 700; cursor: pointer;
+    border: none; letter-spacing: 0.01em;
+    box-shadow: 0 0 40px rgba(108,99,255,0.5);
+    transition: var(--transition);
+  }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 0 60px rgba(108,99,255,0.7); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text); padding: 15px 40px;
+    border-radius: 100px; font-size: 1rem;
+    font-weight: 600; cursor: pointer;
+    border: 1px solid var(--border);
+    transition: var(--transition);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); background: rgba(108,99,255,0.06); }
+  .hero-stats {
+    display: flex; gap: 48px; margin-top: 72px;
+    animation: fadeUp 0.8s 0.6s ease both;
+  }
+  .stat { text-align: center; }
+  .stat-num { font-size: 2rem; font-weight: 800; color: var(--accent2); letter-spacing: -0.04em; }
+  .stat-label { font-size: 0.78rem; color: var(--text-dim); font-family: var(--font-mono); margin-top: 4px; }
+
+  @keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ── SECTION SHARED ── */
+  section { padding: 100px 0; position: relative; z-index: 2; }
+  .section-label {
+    font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.15em;
+    color: var(--accent2); text-transform: uppercase; margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 800;
+    letter-spacing: -0.04em; line-height: 1.1;
+    margin-bottom: 20px;
+  }
+  .section-desc { color: var(--text-dim); font-size: 1.05rem; line-height: 1.7; max-width: 560px; }
+
+  /* ── BUILDER ── */
+  #builder { padding-top: 60px; }
+  .builder-layout {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  .builder-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    position: sticky;
+    top: 90px;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+  }
+  .builder-panel::-webkit-scrollbar { width: 4px; }
+  .builder-panel::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+
+  .panel-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0;
+    background: var(--surface);
+    z-index: 10;
+  }
+  .panel-title { font-size: 0.9rem; font-weight: 700; letter-spacing: 0.02em; }
+  .panel-badge {
+    background: rgba(108,99,255,0.15); color: var(--accent2);
+    font-size: 0.7rem; font-family: var(--font-mono);
+    padding: 3px 10px; border-radius: 100px;
+  }
+
+  .accordion { border-bottom: 1px solid var(--border); }
+  .accordion-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px; cursor: pointer;
+    transition: background var(--transition);
+    user-select: none;
+  }
+  .accordion-header:hover { background: rgba(108,99,255,0.05); }
+  .accordion-title { font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+  .accordion-icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.95rem;
+    background: rgba(108,99,255,0.12);
+  }
+  .accordion-arrow {
+    color: var(--text-dim); font-size: 0.75rem;
+    transition: transform var(--transition);
+  }
+  .accordion.open .accordion-arrow { transform: rotate(180deg); }
+  .accordion-body {
+    padding: 0 24px 16px;
+    display: none;
+  }
+  .accordion.open .accordion-body { display: block; }
+
+  .form-group { margin-bottom: 14px; }
+  .form-label {
+    display: block; font-size: 0.75rem; font-weight: 600;
+    color: var(--text-dim); letter-spacing: 0.06em;
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .form-input, .form-select, .form-textarea {
+    width: 100%; background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text);
+    font-family: var(--font-mono); font-size: 0.82rem;
+    padding: 10px 14px; outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(108,99,255,0.15);
+  }
+  .form-select option { background: var(--surface2); }
+  .form-textarea { resize: vertical; min-height: 80px; }
+
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .toggle-label { font-size: 0.82rem; font-weight: 500; color: var(--text-dim); }
+  .toggle {
+    width: 42px; height: 24px; border-radius: 100px;
+    background: var(--surface2); border: 1px solid var(--border);
+    cursor: pointer; position: relative; transition: background var(--transition);
+  }
+  .toggle.on { background: var(--accent); border-color: var(--accent); }
+  .toggle::after {
+    content: ''; position: absolute;
+    top: 3px; left: 3px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform var(--transition);
+  }
+  .toggle.on::after { transform: translateX(18px); }
+
+  /* Tech Stack Grid */
+  .tech-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 6px; margin-top: 10px;
+  }
+  .tech-chip {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px; padding: 8px 4px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; cursor: pointer;
+    font-size: 0.6rem; color: var(--text-dim);
+    transition: var(--transition); text-align: center;
+  }
+  .tech-chip img { width: 20px; height: 20px; object-fit: contain; }
+  .tech-chip:hover { border-color: var(--accent); color: var(--accent); background: rgba(108,99,255,0.08); }
+  .tech-chip.selected { border-color: var(--accent); background: rgba(108,99,255,0.18); color: var(--accent2); }
+
+  /* Color pickers */
+  .color-row { display: flex; gap: 8px; margin-top: 8px; }
+  .color-swatch {
+    width: 28px; height: 28px; border-radius: 6px;
+    cursor: pointer; border: 2px solid transparent;
+    transition: var(--transition);
+  }
+  .color-swatch.active { border-color: var(--text); transform: scale(1.15); }
+
+  /* ── PREVIEW PANEL ── */
+  .preview-panel {
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  .preview-tabs {
+    display: flex; gap: 4px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 4px;
+    width: fit-content;
+  }
+  .preview-tab {
+    padding: 8px 20px; border-radius: 8px;
+    font-size: 0.82rem; font-weight: 600;
+    cursor: pointer; color: var(--text-dim);
+    transition: var(--transition); border: none;
+    background: transparent;
+  }
+  .preview-tab.active { background: var(--accent); color: #fff; }
+
+  .preview-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .preview-toolbar {
+    padding: 12px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .preview-dots { display: flex; gap: 6px; }
+  .preview-dots span { width: 10px; height: 10px; border-radius: 50%; }
+  .preview-dots span:nth-child(1) { background: #ff5f57; }
+  .preview-dots span:nth-child(2) { background: #febc2e; }
+  .preview-dots span:nth-child(3) { background: #28c840; }
+  .preview-filename { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-dim); }
+  .preview-actions { display: flex; gap: 8px; }
+  .preview-action-btn {
+    padding: 5px 14px; border-radius: 6px; font-size: 0.75rem;
+    font-weight: 600; cursor: pointer; border: 1px solid var(--border);
+    background: transparent; color: var(--text-dim);
+    transition: var(--transition);
+  }
+  .preview-action-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .preview-action-btn.primary {
+    background: var(--accent); color: #fff; border-color: var(--accent);
+  }
+  .preview-action-btn.primary:hover { background: #7b73ff; }
+
+  .preview-content {
+    padding: 28px;
+    min-height: 480px;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: var(--text-dim);
+    overflow-x: auto;
+  }
+
+  /* Rendered preview */
+  .readme-render {
+    padding: 32px;
+    min-height: 480px;
+    line-height: 1.7;
+    display: none;
+  }
+  .readme-render h1 { font-size: 1.8rem; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+  .readme-render h3 { font-size: 1rem; font-weight: 600; color: var(--text-dim); margin-bottom: 16px; }
+  .readme-render .badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+  .readme-render .badge-img { height: 26px; border-radius: 4px; }
+  .readme-render .section-head {
+    font-size: 1.1rem; font-weight: 700; margin: 24px 0 12px;
+    padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .readme-render .stats-row { display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0; }
+  .readme-render .stat-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 20px;
+    font-size: 0.82rem; color: var(--text-dim); flex: 1; min-width: 180px;
+  }
+  .readme-render .stat-card .num { font-size: 1.5rem; font-weight: 800; color: var(--accent2); }
+  .readme-render .tech-badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .readme-render .tech-badge {
+    background: rgba(108,99,255,0.12); border: 1px solid rgba(108,99,255,0.25);
+    color: var(--accent2); padding: 4px 12px; border-radius: 6px;
+    font-size: 0.78rem; font-family: var(--font-mono);
+  }
+
+  /* Code preview */
+  .code-block {
+    background: #080810;
+    border-radius: 10px;
+    padding: 16px;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: #c8d0ff;
+    overflow-x: auto;
+  }
+  .code-keyword { color: #c792ea; }
+  .code-string { color: #c3e88d; }
+  .code-comment { color: #546e7a; }
+  .code-tag { color: #89ddff; }
+
+  /* ── FEATURES ── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 60px;
+  }
+  .feature-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    position: relative; overflow: hidden;
+    transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+  }
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(108,99,255,0.08) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .feature-card:hover { transform: translateY(-4px); border-color: rgba(108,99,255,0.4); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+  .feature-card:hover::before { opacity: 1; }
+  .feature-icon {
+    width: 48px; height: 48px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; margin-bottom: 20px;
+    background: rgba(108,99,255,0.12);
+  }
+  .feature-title { font-size: 1rem; font-weight: 700; margin-bottom: 10px; }
+  .feature-desc { font-size: 0.87rem; color: var(--text-dim); line-height: 1.65; }
+
+  /* ── STATS TOOLS ── */
+  .tools-section { background: var(--surface); border-radius: 24px; padding: 48px; margin: 0 0 40px; border: 1px solid var(--border); }
+  .tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 32px; }
+  .tool-card {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px; cursor: pointer;
+    transition: var(--transition); position: relative;
+  }
+  .tool-card:hover { border-color: var(--accent2); transform: translateY(-2px); }
+  .tool-card.active { border-color: var(--accent); background: rgba(108,99,255,0.06); }
+  .tool-card-icon { font-size: 1.6rem; margin-bottom: 10px; }
+  .tool-card-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 6px; }
+  .tool-card-desc { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
+  .tool-card-tag {
+    position: absolute; top: 12px; right: 12px;
+    font-size: 0.6rem; font-family: var(--font-mono);
+    padding: 2px 8px; border-radius: 100px;
+    background: rgba(0,229,255,0.12); color: var(--accent2);
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+
+  /* ── SOCIAL LINKS ── */
+  .social-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 8px; }
+  .social-item {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .social-label { font-size: 0.7rem; color: var(--text-dim); font-weight: 600; letter-spacing: 0.05em; }
+  .social-input {
+    background: transparent; border: none; outline: none;
+    color: var(--text); font-family: var(--font-mono); font-size: 0.75rem;
+    width: 100%;
+  }
+  .social-icon { font-size: 1.1rem; }
+
+  /* ── COPY TOAST ── */
+  .toast {
+    position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--accent); color: #fff;
+    padding: 12px 28px; border-radius: 100px;
+    font-size: 0.875rem; font-weight: 600;
+    box-shadow: 0 8px 32px rgba(108,99,255,0.5);
+    transition: transform 0.4s cubic-bezier(.4,0,.2,1);
+    z-index: 999;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── FAQ ── */
+  .faq-list { margin-top: 48px; display: flex; flex-direction: column; gap: 12px; }
+  .faq-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden;
+  }
+  .faq-q {
+    padding: 20px 24px; font-weight: 600; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    transition: background var(--transition);
+  }
+  .faq-q:hover { background: rgba(108,99,255,0.05); }
+  .faq-arrow { transition: transform 0.3s; color: var(--text-dim); }
+  .faq-item.open .faq-arrow { transform: rotate(180deg); color: var(--accent2); }
+  .faq-a { display: none; padding: 0 24px 20px; color: var(--text-dim); line-height: 1.7; font-size: 0.9rem; }
+  .faq-item.open .faq-a { display: block; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 48px 0; text-align: center;
+    position: relative; z-index: 2;
+  }
+  .footer-logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.04em; margin-bottom: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .footer-text { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 24px; }
+  .footer-links { display: flex; gap: 24px; justify-content: center; margin-bottom: 32px; }
+  .footer-links a { color: var(--text-dim); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--accent2); }
+  .footer-copy { font-size: 0.78rem; color: var(--text-dim); font-family: var(--font-mono); }
+
+  /* ── DIVIDER GLOW ── */
+  .divider {
+    height: 1px; margin: 0;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.3;
+    position: relative; z-index: 2;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .builder-layout { grid-template-columns: 1fr; }
+    .builder-panel { position: static; max-height: none; }
+    .features-grid { grid-template-columns: repeat(2, 1fr); }
+    .tools-grid { grid-template-columns: repeat(2, 1fr); }
+    .nav-links { display: none; }
+    .hero-stats { gap: 28px; }
+  }
+  @media (max-width: 600px) {
+    .features-grid { grid-template-columns: 1fr; }
+    .tools-grid { grid-template-columns: 1fr; }
+    .social-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ── SCROLL ANIMATIONS ── */
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* Floating particles text effect */
+  .glitch {
+    position: relative;
+    display: inline-block;
+  }
+</style>
+</head>
+<body>
+
+<!-- THREE.JS Canvas -->
+<canvas id="three-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="container">
+    <div class="nav-inner">
+      <div class="logo">Profile<span>Craft</span></div>
+      <ul class="nav-links">
+        <li><a href="#builder">Builder</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#tools">Tools</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+      <button class="nav-cta" onclick="document.getElementById('builder').scrollIntoView({behavior:'smooth'})">Create Profile →</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">✦ Free GitHub Profile README Generator</div>
+    <h1>
+      <span class="line1">Craft Your</span>
+      <span class="line2">GitHub Identity</span>
+    </h1>
+    <p class="hero-sub">Generate stunning, personalized GitHub profile READMEs in seconds. Flex your stats, showcase your stack, and stand out from the crowd — completely free.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="document.getElementById('builder').scrollIntoView({behavior:'smooth'})">Start Building Free →</button>
+      <button class="btn-ghost" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">See Features</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num" id="stat1">0</div><div class="stat-label">Profiles Created</div></div>
+      <div class="stat"><div class="stat-num" id="stat2">0</div><div class="stat-label">Tech Options</div></div>
+      <div class="stat"><div class="stat-num" id="stat3">0</div><div class="stat-label">GitHub Stars</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- BUILDER -->
+<section id="builder">
+  <div class="container">
+    <div style="text-align:center; margin-bottom:48px;">
+      <div class="section-label">// profile builder</div>
+      <h2 class="section-title">Build Your README</h2>
+      <p class="section-desc" style="margin:0 auto;">Fill in the sections below and watch your profile README come alive in real time.</p>
+    </div>
+
+    <div class="builder-layout">
+      <!-- LEFT PANEL: FORM -->
+      <div class="builder-panel" id="builderPanel">
+        <div class="panel-header">
+          <div class="panel-title">⚙ Configuration</div>
+          <div class="panel-badge">LIVE PREVIEW</div>
+        </div>
+
+        <!-- 1. Basic Info -->
+        <div class="accordion open" id="acc-basic">
+          <div class="accordion-header" onclick="toggleAccordion('acc-basic')">
+            <div class="accordion-title"><span class="accordion-icon">👤</span> Basic Info</div>
+            <span class="accordion-arrow">▼</span>
+          </div>
+          <div class="accordion-body">
+            <div class="form-group">
+              <label class="form-label">GitHub Username *</label>
+              <input class="form-input" id="inp-username" type="text" placeholder="octocat" oninput="updatePreview()"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Display Name</label>
+              <input class="form-input" id="inp-name" type="text" placeholder="John Doe" oninput="updatePreview()"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Short Tagline</label>
+              <input class="form-input" id="inp-tagline" type="text" placeholder="Full Stack Developer | Open Source Enthusiast" oninput="updatePreview()"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">About / Bio</label>
+              <textarea class="form-textarea" id="inp-bio" placeholder="A passionate developer who loves building cool things..." oninput="updatePreview()"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Currently Working On</label>
+              <input class="form-input" id="inp-working" type="text" placeholder="🔭 Building an awesome SaaS app" oninput="updatePreview()"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Currently Learning</label>
+              <input class="form-input" id="inp-learning" type="text" placeholder="🌱 Rust and WebAssembly" oninput="updatePreview()"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ask Me About</label>
+              <input class="form-input" id="inp-askme" type="text" placeholder="React, Node.js, Docker" oninput="updatePreview()"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Fun Fact</label>
+              <input class="form-input" id="inp-funfact" type="text" placeholder="⚡ I debug with console.log like a pro" oninput="updatePreview()"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. GitHub Stats -->
+        <div class="accordion" id="acc-stats">
+          <div class="accordion-header" onclick="toggleAccordion('acc-stats')">
+            <div class="accordion-title"><span class="accordion-icon">📊</span> GitHub Stats</div>
+            <span class="accordion-arrow">▼</span>
+          </div>
+          <div class="accordion-body">
+            <div class="toggle-row"><span class="toggle-label">Show GitHub Stats Card</span><div class="toggle on" id="tog-stats" onclick="toggleOption('tog-stats', updatePreview)"></div></div>
+            <div class="toggle-row"><span class="toggle-label">Show Top Languages</span><div class="toggle on" id="tog-langs" onclick="toggleOption('tog-langs', updatePreview)"></div></div>
+            <div class="toggle-row"><span class="toggle-label">Show Streak Stats</span><div class="toggle on" id="tog-streak" onclick="toggleOption('tog-streak', updatePreview)"></div></div>
+            <div class="toggle-row"><span class="toggle-label">Show Trophies</span><div class="toggle" id="tog-trophies" onclick="toggleOption('tog-trophies', updatePreview)"></div></div>
+            <div class="toggle-row"><span class="toggle-label">Show Visitor Counter</span><div class="toggle" id="tog-visitors" onclick="toggleOption('tog-visitors', updatePreview)"></div></div>
+            <div class="form-group" style="margin-top:12px;">
+              <label class="form-label">Stats Theme</label>
+              <select class="form-select" id="sel-theme" onchange="updatePreview()">
+                <option value="tokyonight">Tokyo Night</option>
+                <option value="radical">Radical</option>
+                <option value="merko">Merko</option>
+                <option value="gruvbox">Gruvbox</option>
+                <option value="onedark">One Dark</option>
+                <option value="cobalt">Cobalt</option>
+                <option value="synthwave">Synthwave</option>
+                <option value="highcontrast">High Contrast</option>
+                <option value="dracula">Dracula</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Hide Stats</label>
+              <input class="form-input" id="inp-hidestats" placeholder="stars,commits,prs (comma separated)" oninput="updatePreview()"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Social Links -->
+        <div class="accordion" id="acc-social">
+          <div class="accordion-header" onclick="toggleAccordion('acc-social')">
+            <div class="accordion-title"><span class="accordion-icon">🔗</span> Social Links</div>
+            <span class="accordion-arrow">▼</span>
+          </div>
+          <div class="accordion-body">
+            <div class="social-grid">
+              <div class="social-item"><div class="social-icon">🐦</div><div class="social-label">Twitter/X</div><input class="social-input" id="soc-twitter" placeholder="username" oninput="updatePreview()"/></div>
+              <div class="social-item"><div class="social-icon">💼</div><div class="social-label">LinkedIn</div><input class="social-input" id="soc-linkedin" placeholder="username" oninput="updatePreview()"/></div>
+              <div class="social-item"><div class="social-icon">📸</div><div class="social-label">Instagram</div><input class="social-input" id="soc-instagram" placeholder="username" oninput="updatePreview()"/></div>
+              <div class="social-item"><div class="social-icon">💬</div><div class="social-label">Discord</div><input class="social-input" id="soc-discord" placeholder="user#0000" oninput="updatePreview()"/></div>
+              <div class="social-item"><div class="social-icon">📧</div><div class="social-label">Email</div><input class="social-input" id="soc-email" placeholder="you@example.com" oninput="updatePreview()"/></div>
+              <div class="social-item"><div class="social-icon">🌐</div><div class="social-label">Website</div><input class="social-input" id="soc-website" placeholder="yoursite.com" oninput="updatePreview()"/></div>
+              <div class="social-item"><div class="social-icon">📺</div><div class="social-label">YouTube</div><input class="social-input" id="soc-youtube" placeholder="channel" oninput="updatePreview()"/></div>
+              <div class="social-item"><div class="social-icon">📝</div><div class="social-label">Dev.to</div><input class="social-input" id="soc-devto" placeholder="username" oninput="updatePreview()"/></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Tech Stack -->
+        <div class="accordion" id="acc-tech">
+          <div class="accordion-header" onclick="toggleAccordion('acc-tech')">
+            <div class="accordion-title"><span class="accordion-icon">⚡</span> Tech Stack</div>
+            <span class="accordion-arrow">▼</span>
+          </div>
+          <div class="accordion-body">
+            <p style="font-size:0.78rem; color:var(--text-dim); margin-bottom:10px;">Click to select technologies (shown in your profile)</p>
+            <div class="tech-grid" id="techGrid"></div>
+          </div>
+        </div>
+
+        <!-- 5. Fun Components -->
+        <div class="accordion" id="acc-fun">
+          <div class="accordion-header" onclick="toggleAccordion('acc-fun')">
+            <div class="accordion-title"><span class="accordion-icon">🎉</span> Fun Components</div>
+            <span class="accordion-arrow">▼</span>
+          </div>
+          <div class="accordion-body">
+            <div class="toggle-row"><span class="toggle-label">Random Dev Quote</span><div class="toggle" id="tog-quote" onclick="toggleOption('tog-quote', updatePreview)"></div></div>
+            <div class="toggle-row"><span class="toggle-label">Random Meme</span><div class="toggle" id="tog-meme" onclick="toggleOption('tog-meme', updatePreview)"></div></div>
+            <div class="toggle-row"><span class="toggle-label">Contribution Snake</span><div class="toggle" id="tog-snake" onclick="toggleOption('tog-snake', updatePreview)"></div></div>
+            <div class="toggle-row"><span class="toggle-label">Spotify Playing</span><div class="toggle" id="tog-spotify" onclick="toggleOption('tog-spotify', updatePreview)"></div></div>
+            <div class="form-group" style="margin-top:12px;">
+              <label class="form-label">Spotify Username (if enabled)</label>
+              <input class="form-input" id="inp-spotify" placeholder="spotify_username" oninput="updatePreview()"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. Donation -->
+        <div class="accordion" id="acc-donate">
+          <div class="accordion-header" onclick="toggleAccordion('acc-donate')">
+            <div class="accordion-title"><span class="accordion-icon">☕</span> Support Links</div>
+            <span class="accordion-arrow">▼</span>
+          </div>
+          <div class="accordion-body">
+            <div class="form-group">
+              <label class="form-label">Buy Me a Coffee Username</label>
+              <input class="form-input" id="inp-bmc" placeholder="yourusername" oninput="updatePreview()"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ko-fi Username</label>
+              <input class="form-input" id="inp-kofi" placeholder="yourusername" oninput="updatePreview()"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">PayPal.me Link</label>
+              <input class="form-input" id="inp-paypal" placeholder="https://paypal.me/yourname" oninput="updatePreview()"/>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end builder-panel -->
+
+      <!-- RIGHT PANEL: PREVIEW -->
+      <div class="preview-panel">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+          <div class="preview-tabs">
+            <button class="preview-tab active" onclick="switchTab('rendered', this)">👁 Preview</button>
+            <button class="preview-tab" onclick="switchTab('markdown', this)">📄 Markdown</button>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="preview-action-btn" onclick="copyMarkdown()">📋 Copy Markdown</button>
+            <button class="preview-action-btn primary" onclick="downloadMarkdown()">⬇ Download README.md</button>
+          </div>
+        </div>
+
+        <div class="preview-card">
+          <div class="preview-toolbar">
+            <div class="preview-dots"><span></span><span></span><span></span></div>
+            <div class="preview-filename">README.md</div>
+            <div style="font-size:0.7rem; font-family:var(--font-mono); color:var(--accent2);">● LIVE</div>
+          </div>
+
+          <!-- Rendered view -->
+          <div class="readme-render" id="readmeRendered" style="display:block;">
+            <div style="color:var(--text-dim); font-size:0.85rem; text-align:center; padding:60px 0;">
+              <div style="font-size:2.5rem; margin-bottom:16px;">✨</div>
+              <div>Fill in your details on the left<br>to see your profile README come alive here!</div>
+            </div>
+          </div>
+
+          <!-- Markdown view -->
+          <div class="preview-content" id="readmeMarkdown" style="display:none;">
+            <div style="color:var(--text-dim);"># Fill in your details to generate markdown...</div>
+          </div>
+        </div>
+
+        <!-- Quick Tips Card -->
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px 24px;">
+          <div style="font-size:0.85rem; font-weight:700; margin-bottom:12px; color:var(--accent2);">💡 Quick Tips</div>
+          <div style="font-size:0.8rem; color:var(--text-dim); line-height:1.7;">
+            • Only your <strong style="color:var(--text);">GitHub username</strong> is required — all other fields are optional<br>
+            • Stats cards need your profile to be <strong style="color:var(--text);">public</strong><br>
+            • Create a repo with the <strong style="color:var(--text);">same name as your username</strong> to use this<br>
+            • Toggle sections on/off to customize what shows
+          </div>
+        </div>
+      </div><!-- end preview-panel -->
+    </div><!-- end builder-layout -->
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="container">
+    <div class="reveal" style="text-align:center;">
+      <div class="section-label">// why profilecraft</div>
+      <h2 class="section-title">Everything You Need</h2>
+      <p class="section-desc" style="margin:0 auto;">Professional-grade tools to make your GitHub profile stand out from 100 million developers worldwide.</p>
+    </div>
+    <div class="features-grid reveal">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Lightning Fast</div>
+        <div class="feature-desc">Generate your perfect profile README in under 60 seconds. Real-time preview with every keystroke.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎨</div>
+        <div class="feature-title">300+ Tech Icons</div>
+        <div class="feature-desc">Choose from over 300 beautiful technology badges to showcase your stack exactly how you want.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">GitHub Stats</div>
+        <div class="feature-desc">Dynamic stats cards, streak counters, top languages, and trophy showcases — all with 9+ themes.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔗</div>
+        <div class="feature-title">All Social Links</div>
+        <div class="feature-desc">Add Twitter, LinkedIn, YouTube, Dev.to, Discord, and 10+ more social platforms with one-click badges.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎉</div>
+        <div class="feature-title">Fun Widgets</div>
+        <div class="feature-desc">Random dev quotes, memes, contribution snakes, Spotify now playing — make your profile unforgettable.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">☕</div>
+        <div class="feature-title">Donation Links</div>
+        <div class="feature-desc">Add Buy Me a Coffee, Ko-fi, and PayPal donation buttons directly to your profile.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <div class="feature-title">Zero Code Needed</div>
+        <div class="feature-desc">No Markdown or HTML knowledge required. A complete no-code solution for everyone.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌙</div>
+        <div class="feature-title">Multiple Themes</div>
+        <div class="feature-desc">9+ carefully curated themes for your stats cards including Tokyo Night, Dracula, and Synthwave.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔢</div>
+        <div class="feature-title">Visitor Counter</div>
+        <div class="feature-desc">Track how many developers have visited your profile with a stylish embedded counter widget.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- TOOLS -->
+<section id="tools">
+  <div class="container">
+    <div class="reveal" style="text-align:center; margin-bottom:48px;">
+      <div class="section-label">// integrated tools</div>
+      <h2 class="section-title">Powerful Tools</h2>
+      <p class="section-desc" style="margin:0 auto;">All the GitHub stat tools you need, seamlessly integrated into one beautiful builder.</p>
+    </div>
+
+    <div class="tools-section reveal">
+      <h3 style="font-size:1.2rem; font-weight:700; margin-bottom:8px;">GitHub Stats Tools</h3>
+      <p style="color:var(--text-dim); font-size:0.87rem;">Click any tool to preview it with your username</p>
+      <div class="tools-grid">
+        <div class="tool-card active" onclick="selectTool(this, 'stats')">
+          <div class="tool-card-tag">Dynamic</div>
+          <div class="tool-card-icon">📊</div>
+          <div class="tool-card-title">GitHub Stats Card</div>
+          <div class="tool-card-desc">Stars, commits, PRs, issues, and contribution count in a beautiful card.</div>
+        </div>
+        <div class="tool-card" onclick="selectTool(this, 'langs')">
+          <div class="tool-card-tag">Dynamic</div>
+          <div class="tool-card-icon">🗂</div>
+          <div class="tool-card-title">Top Languages</div>
+          <div class="tool-card-desc">Visual breakdown of your most-used programming languages.</div>
+        </div>
+        <div class="tool-card" onclick="selectTool(this, 'streak')">
+          <div class="tool-card-tag">Dynamic</div>
+          <div class="tool-card-icon">🔥</div>
+          <div class="tool-card-title">Streak Stats</div>
+          <div class="tool-card-desc">Show your current streak, total contributions, and longest streak.</div>
+        </div>
+        <div class="tool-card" onclick="selectTool(this, 'trophies')">
+          <div class="tool-card-tag">Dynamic</div>
+          <div class="tool-card-icon">🏆</div>
+          <div class="tool-card-title">Profile Trophies</div>
+          <div class="tool-card-desc">Virtual trophies awarded based on your GitHub achievements.</div>
+        </div>
+        <div class="tool-card" onclick="selectTool(this, 'activity')">
+          <div class="tool-card-tag">Dynamic</div>
+          <div class="tool-card-icon">📈</div>
+          <div class="tool-card-title">Activity Graph</div>
+          <div class="tool-card-desc">Beautiful contribution graph showing your coding activity over time.</div>
+        </div>
+        <div class="tool-card" onclick="selectTool(this, 'quote')">
+          <div class="tool-card-tag">Random</div>
+          <div class="tool-card-icon">💬</div>
+          <div class="tool-card-title">Random Dev Quote</div>
+          <div class="tool-card-desc">A new inspirational programming quote every time your profile loads.</div>
+        </div>
+      </div>
+
+      <!-- Tool Preview Box -->
+      <div id="toolPreviewBox" style="margin-top:28px; background:var(--bg); border:1px solid var(--border); border-radius:14px; padding:24px; font-family:var(--font-mono); font-size:0.8rem; color:var(--text-dim);">
+        <div style="color:var(--accent2); margin-bottom:8px;">// preview — stats card</div>
+        <div id="toolPreviewContent">
+          Enter your GitHub username in the builder to see a live preview of each tool.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="container">
+    <div class="reveal" style="text-align:center;">
+      <div class="section-label">// help & faq</div>
+      <h2 class="section-title">Frequently Asked</h2>
+    </div>
+    <div class="faq-list reveal">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Do I need to fill all sections? <span class="faq-arrow">▼</span></div>
+        <div class="faq-a">Not at all! Only your GitHub username is mandatory. All other sections — bio, social links, tech stack, stats — are completely optional. Customize your profile exactly how you want it.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Do I need to know Markdown? <span class="faq-arrow">▼</span></div>
+        <div class="faq-a">No coding knowledge needed at all. ProfileCraft is a complete no-code solution. Simply fill in the fields, toggle your preferences, and copy/download the generated README.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How do I use the generated README? <span class="faq-arrow">▼</span></div>
+        <div class="faq-a">1. Go to github.com/new and create a repo with the EXACT same name as your GitHub username. 2. Make it public and initialize with a README. 3. Paste your generated code into the README.md file. 4. Commit changes — your profile is live!</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Are the stats cards real-time? <span class="faq-arrow">▼</span></div>
+        <div class="faq-a">Yes! The stats cards are powered by the GitHub API and update dynamically every time someone views your profile. They reflect your actual, current GitHub activity.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Is this tool free? <span class="faq-arrow">▼</span></div>
+        <div class="faq-a">Completely free, forever. No account required, no watermarks, no limitations. ProfileCraft is open source and will always remain free for the community.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Can I customize the stats card themes? <span class="faq-arrow">▼</span></div>
+        <div class="faq-a">Yes! Choose from 9+ themes including Tokyo Night, Radical, Dracula, Gruvbox, One Dark, Cobalt, Synthwave, and more in the GitHub Stats section of the builder.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-logo">ProfileCraft</div>
+    <div class="footer-text">The most advanced GitHub Profile README Generator. Free, open source, and built with ❤️</div>
+    <div class="footer-links">
+      <a href="#">GitHub</a>
+      <a href="#">Twitter</a>
+      <a href="#">Discord</a>
+      <a href="#">Changelog</a>
+      <a href="#">Privacy</a>
+    </div>
+    <div class="footer-copy">crafted with ✦ by ProfileCraft • MIT License</div>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✅ Copied to clipboard!</div>
+
+<script>
+// ─────────────────────────────────────────────
+// THREE.JS BACKGROUND
+// ─────────────────────────────────────────────
+(function() {
+  const canvas = document.getElementById('three-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
+  camera.position.z = 50;
+
+  // Particles
+  const count = 1800;
+  const positions = new Float32Array(count * 3);
+  const colors = new Float32Array(count * 3);
+  const sizes = new Float32Array(count);
+  const speeds = new Float32Array(count);
+
+  const palette = [
+    new THREE.Color('#6c63ff'),
+    new THREE.Color('#00e5ff'),
+    new THREE.Color('#ff6b9d'),
+    new THREE.Color('#7b73ff'),
+    new THREE.Color('#00bcd4'),
+  ];
+
+  for (let i = 0; i < count; i++) {
+    positions[i * 3]     = (Math.random() - 0.5) * 200;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 120;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 100;
+    const c = palette[Math.floor(Math.random() * palette.length)];
+    colors[i * 3]     = c.r;
+    colors[i * 3 + 1] = c.g;
+    colors[i * 3 + 2] = c.b;
+    sizes[i] = Math.random() * 2.5 + 0.3;
+    speeds[i] = Math.random() * 0.4 + 0.05;
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  geo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+  const mat = new THREE.PointsMaterial({
+    size: 0.6, vertexColors: true, transparent: true,
+    opacity: 0.55, sizeAttenuation: true, blending: THREE.AdditiveBlending, depthWrite: false,
+  });
+
+  const particles = new THREE.Points(geo, mat);
+  scene.add(particles);
+
+  // Floating wireframe nodes
+  const nodeGeos = [];
+  const nodeMat = new THREE.MeshBasicMaterial({ color: 0x6c63ff, wireframe: true, opacity: 0.08, transparent: true });
+  for (let i = 0; i < 8; i++) {
+    const g = i % 3 === 0
+      ? new THREE.IcosahedronGeometry(Math.random() * 4 + 2, 0)
+      : i % 3 === 1
+        ? new THREE.OctahedronGeometry(Math.random() * 3 + 1.5, 0)
+        : new THREE.TetrahedronGeometry(Math.random() * 3 + 2, 0);
+    const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: i%2===0? 0x6c63ff: 0x00e5ff, wireframe: true, opacity: 0.07, transparent: true }));
+    m.position.set((Math.random()-0.5)*80, (Math.random()-0.5)*50, (Math.random()-0.5)*40 - 10);
+    m.userData = { rx: (Math.random()-0.5)*0.003, ry: (Math.random()-0.5)*0.004, rz: (Math.random()-0.5)*0.002 };
+    scene.add(m);
+    nodeGeos.push(m);
+  }
+
+  // Mouse parallax
+  let mx = 0, my = 0;
+  window.addEventListener('mousemove', e => {
+    mx = (e.clientX / window.innerWidth - 0.5) * 2;
+    my = -(e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  let clock = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    clock += 0.005;
+
+    // Rotate particles gently
+    particles.rotation.y = clock * 0.04;
+    particles.rotation.x = clock * 0.015;
+
+    // Parallax camera
+    camera.position.x += (mx * 3 - camera.position.x) * 0.035;
+    camera.position.y += (my * 2 - camera.position.y) * 0.035;
+    camera.lookAt(scene.position);
+
+    // Rotate wireframe nodes
+    nodeGeos.forEach(n => {
+      n.rotation.x += n.userData.rx;
+      n.rotation.y += n.userData.ry;
+      n.rotation.z += n.userData.rz;
+    });
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+})();
+
+// ─────────────────────────────────────────────
+// TECH STACK DATA
+// ─────────────────────────────────────────────
+const TECH = [
+  { name: 'JavaScript', icon: 'https://img.shields.io/badge/-JavaScript-F7DF1E?logo=javascript&logoColor=black&style=flat', simple: 'JavaScript' },
+  { name: 'TypeScript', icon: 'https://img.shields.io/badge/-TypeScript-3178C6?logo=typescript&logoColor=white&style=flat', simple: 'TypeScript' },
+  { name: 'Python', icon: 'https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat', simple: 'Python' },
+  { name: 'Rust', icon: 'https://img.shields.io/badge/-Rust-000000?logo=rust&logoColor=white&style=flat', simple: 'Rust' },
+  { name: 'Go', icon: 'https://img.shields.io/badge/-Go-00ADD8?logo=go&logoColor=white&style=flat', simple: 'Go' },
+  { name: 'Java', icon: 'https://img.shields.io/badge/-Java-007396?logo=java&logoColor=white&style=flat', simple: 'Java' },
+  { name: 'C++', icon: 'https://img.shields.io/badge/-C++-00599C?logo=c%2B%2B&logoColor=white&style=flat', simple: 'C%2B%2B' },
+  { name: 'Ruby', icon: 'https://img.shields.io/badge/-Ruby-CC342D?logo=ruby&logoColor=white&style=flat', simple: 'Ruby' },
+  { name: 'React', icon: 'https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat', simple: 'React' },
+  { name: 'Vue', icon: 'https://img.shields.io/badge/-Vue.js-4FC08D?logo=vue.js&logoColor=white&style=flat', simple: 'Vue.js' },
+  { name: 'Angular', icon: 'https://img.shields.io/badge/-Angular-DD0031?logo=angular&logoColor=white&style=flat', simple: 'Angular' },
+  { name: 'Next.js', icon: 'https://img.shields.io/badge/-Next.js-000000?logo=next.js&logoColor=white&style=flat', simple: 'Next.js' },
+  { name: 'Node.js', icon: 'https://img.shields.io/badge/-Node.js-339933?logo=node.js&logoColor=white&style=flat', simple: 'Node.js' },
+  { name: 'Django', icon: 'https://img.shields.io/badge/-Django-092E20?logo=django&logoColor=white&style=flat', simple: 'Django' },
+  { name: 'FastAPI', icon: 'https://img.shields.io/badge/-FastAPI-009688?logo=fastapi&logoColor=white&style=flat', simple: 'FastAPI' },
+  { name: 'Docker', icon: 'https://img.shields.io/badge/-Docker-2496ED?logo=docker&logoColor=white&style=flat', simple: 'Docker' },
+  { name: 'Kubernetes', icon: 'https://img.shields.io/badge/-Kubernetes-326CE5?logo=kubernetes&logoColor=white&style=flat', simple: 'Kubernetes' },
+  { name: 'AWS', icon: 'https://img.shields.io/badge/-AWS-232F3E?logo=amazon-aws&logoColor=white&style=flat', simple: 'AWS' },
+  { name: 'GCP', icon: 'https://img.shields.io/badge/-GCP-4285F4?logo=google-cloud&logoColor=white&style=flat', simple: 'GCP' },
+  { name: 'Azure', icon: 'https://img.shields.io/badge/-Azure-0078D4?logo=microsoft-azure&logoColor=white&style=flat', simple: 'Azure' },
+  { name: 'MongoDB', icon: 'https://img.shields.io/badge/-MongoDB-47A248?logo=mongodb&logoColor=white&style=flat', simple: 'MongoDB' },
+  { name: 'PostgreSQL', icon: 'https://img.shields.io/badge/-PostgreSQL-336791?logo=postgresql&logoColor=white&style=flat', simple: 'PostgreSQL' },
+  { name: 'Redis', icon: 'https://img.shields.io/badge/-Redis-DC382D?logo=redis&logoColor=white&style=flat', simple: 'Redis' },
+  { name: 'GraphQL', icon: 'https://img.shields.io/badge/-GraphQL-E10098?logo=graphql&logoColor=white&style=flat', simple: 'GraphQL' },
+  { name: 'TailwindCSS', icon: 'https://img.shields.io/badge/-TailwindCSS-06B6D4?logo=tailwind-css&logoColor=white&style=flat', simple: 'TailwindCSS' },
+  { name: 'Git', icon: 'https://img.shields.io/badge/-Git-F05032?logo=git&logoColor=white&style=flat', simple: 'Git' },
+  { name: 'Linux', icon: 'https://img.shields.io/badge/-Linux-FCC624?logo=linux&logoColor=black&style=flat', simple: 'Linux' },
+  { name: 'Figma', icon: 'https://img.shields.io/badge/-Figma-F24E1E?logo=figma&logoColor=white&style=flat', simple: 'Figma' },
+];
+
+let selectedTechs = new Set();
+
+function buildTechGrid() {
+  const grid = document.getElementById('techGrid');
+  grid.innerHTML = '';
+  TECH.forEach((t, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'tech-chip';
+    chip.dataset.idx = i;
+    chip.innerHTML = `<img src="${t.icon}" alt="${t.name}" loading="lazy" onerror="this.style.display='none'"/>${t.name}`;
+    chip.onclick = () => {
+      if (selectedTechs.has(i)) { selectedTechs.delete(i); chip.classList.remove('selected'); }
+      else { selectedTechs.add(i); chip.classList.add('selected'); }
+      updatePreview();
+    };
+    grid.appendChild(chip);
+  });
+}
+buildTechGrid();
+
+// ─────────────────────────────────────────────
+// ACCORDION
+// ─────────────────────────────────────────────
+function toggleAccordion(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+// ─────────────────────────────────────────────
+// TOGGLE
+// ─────────────────────────────────────────────
+function toggleOption(id, cb) {
+  const el = document.getElementById(id);
+  el.classList.toggle('on');
+  if (cb) cb();
+}
+function isOn(id) { return document.getElementById(id).classList.contains('on'); }
+
+// ─────────────────────────────────────────────
+// GENERATE README
+// ─────────────────────────────────────────────
+function generateMarkdown() {
+  const username = v('username') || 'your-username';
+  const name = v('name') || username;
+  const tagline = v('tagline');
+  const bio = v('bio');
+  const working = v('working');
+  const learning = v('learning');
+  const askme = v('askme');
+  const funfact = v('funfact');
+  const theme = document.getElementById('sel-theme').value;
+
+  const socials = {
+    twitter: v_soc('twitter'), linkedin: v_soc('linkedin'), instagram: v_soc('instagram'),
+    discord: v_soc('discord'), email: v_soc('email'), website: v_soc('website'),
+    youtube: v_soc('youtube'), devto: v_soc('devto'),
+  };
+
+  let md = '';
+
+  // Header
+  md += `<h1 align="center">Hi 👋, I'm ${name}</h1>\n`;
+  if (tagline) md += `<h3 align="center">${tagline}</h3>\n\n`;
+
+  // Visitor counter
+  if (isOn('tog-visitors') && username !== 'your-username') {
+    md += `<p align="left"> <img src="https://komarev.com/ghpvc/?username=${username}&label=Profile%20views&color=0e75b6&style=flat" alt="${username}" /> </p>\n\n`;
+  }
+
+  // Working / Learning / Ask / Fun Fact
+  const bullets = [working, learning, askme ? `💬 Ask me about **${askme}**` : '', funfact].filter(Boolean);
+  if (bullets.length) {
+    md += bullets.map(b => `- ${b}`).join('\n') + '\n\n';
+  }
+
+  // Social links
+  const socialBadges = [];
+  if (socials.twitter) socialBadges.push(`[![Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/${socials.twitter})`);
+  if (socials.linkedin) socialBadges.push(`[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/${socials.linkedin})`);
+  if (socials.instagram) socialBadges.push(`[![Instagram](https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://instagram.com/${socials.instagram})`);
+  if (socials.email) socialBadges.push(`[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:${socials.email})`);
+  if (socials.website) socialBadges.push(`[![Website](https://img.shields.io/badge/Website-000000?style=for-the-badge&logo=About.me&logoColor=white)](https://${socials.website})`);
+  if (socials.youtube) socialBadges.push(`[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtube.com/${socials.youtube})`);
+  if (socials.devto) socialBadges.push(`[![Dev.to](https://img.shields.io/badge/dev.to-0A0A0A?style=for-the-badge&logo=dev.to&logoColor=white)](https://dev.to/${socials.devto})`);
+  if (socialBadges.length) {
+    md += `<h3 align="left">Connect with me:</h3>\n<p align="left">\n${socialBadges.join('\n')}\n</p>\n\n`;
+  }
+
+  // Tech Stack
+  if (selectedTechs.size > 0) {
+    md += `<h3 align="left">Languages and Tools:</h3>\n<p align="left">\n`;
+    selectedTechs.forEach(i => {
+      const t = TECH[i];
+      md += `  <img src="${t.icon}" alt="${t.name}" height="30" style="margin: 4px"/>\n`;
+    });
+    md += `</p>\n\n`;
+  }
+
+  // Stats
+  if (isOn('tog-stats')) {
+    md += `<p><img align="left" src="https://github-readme-stats.vercel.app/api?username=${username}&show_icons=true&theme=${theme}&locale=en" alt="${username}" /></p>\n\n`;
+  }
+  if (isOn('tog-langs')) {
+    md += `<p><img align="center" src="https://github-readme-stats.vercel.app/api/top-langs?username=${username}&show_icons=true&locale=en&layout=compact&theme=${theme}" alt="${username}" /></p>\n\n`;
+  }
+  if (isOn('tog-streak')) {
+    md += `<p><img align="center" src="https://streak-stats.demolab.com/?user=${username}&theme=${theme}" alt="${username}" /></p>\n\n`;
+  }
+  if (isOn('tog-trophies')) {
+    md += `<p align="left"> <a href="https://github.com/ryo-ma/github-profile-trophy"><img src="https://github-profile-trophy.vercel.app/?username=${username}&theme=${theme}" alt="${username}" /></a> </p>\n\n`;
+  }
+
+  // Fun components
+  if (isOn('tog-quote')) {
+    md += `<p align="center">\n  <img src="https://quotes-github-readme.vercel.app/api?type=horizontal&theme=tokyonight" />\n</p>\n\n`;
+  }
+  if (isOn('tog-meme')) {
+    md += `<p align="center">\n  <img src="https://random-memer.herokuapp.com/" title="Meme" alt="Please load again if meme not available" />\n</p>\n\n`;
+  }
+  if (isOn('tog-snake')) {
+    md += `<p align="center">\n  <img src="https://github.com/${username}/${username}/blob/output/github-contribution-grid-snake.svg" alt="snake" />\n</p>\n\n`;
+  }
+  if (isOn('tog-spotify') && v('spotify')) {
+    md += `[![Spotify](https://novatorem.vercel.app/api/spotify)](https://open.spotify.com/user/${v('spotify')})\n\n`;
+  }
+
+  // Support
+  const bmc = v('bmc'), kofi = v('kofi'), paypal = v('paypal');
+  if (bmc || kofi || paypal) {
+    md += `<h3>Support:</h3>\n<p>`;
+    if (bmc) md += `<a href="https://www.buymeacoffee.com/${bmc}"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" height="50" width="210" alt="${bmc}" /></a> `;
+    if (kofi) md += `<a href="https://ko-fi.com/${kofi}"><img src="https://cdn.ko-fi.com/cdn/kofi3.png?v=3" height="50" width="210" alt="${kofi}" /></a>`;
+    md += `</p>\n`;
+  }
+
+  return md;
+}
+
+function v(id) { return document.getElementById('inp-' + id)?.value?.trim() || ''; }
+function v_soc(id) { return document.getElementById('soc-' + id)?.value?.trim() || ''; }
+
+// ─────────────────────────────────────────────
+// UPDATE PREVIEW
+// ─────────────────────────────────────────────
+let activeTab = 'rendered';
+function updatePreview() {
+  const md = generateMarkdown();
+  const username = v('username') || 'your-username';
+  const name = v('name') || username;
+  const theme = document.getElementById('sel-theme').value;
+
+  // Update markdown tab
+  document.getElementById('readmeMarkdown').innerHTML = `<div class="code-block">${escapeHtml(md)}</div>`;
+
+  // Update rendered tab
+  if (activeTab === 'rendered') {
+    let html = '';
+    html += `<h1 style="font-size:1.6rem;font-weight:800;margin-bottom:8px;color:var(--text)">Hi 👋, I'm ${escapeHtml(name)}</h1>`;
+    const tagline = v('tagline');
+    if (tagline) html += `<h3 style="color:var(--text-dim);font-size:0.95rem;font-weight:500;margin-bottom:20px;">${escapeHtml(tagline)}</h3>`;
+
+    const bullets = [v('working'), v('learning'), v('askme') ? `💬 Ask me about <strong>${escapeHtml(v('askme'))}</strong>` : '', v('funfact')].filter(Boolean);
+    if (bullets.length) {
+      html += `<ul style="color:var(--text-dim);font-size:0.87rem;line-height:2;margin:16px 0;padding-left:20px;">`;
+      bullets.forEach(b => html += `<li>${b}</li>`);
+      html += `</ul>`;
+    }
+
+    // Socials
+    const socialIcons = [
+      [v_soc('twitter'), 'Twitter', '#1DA1F2'],
+      [v_soc('linkedin'), 'LinkedIn', '#0077B5'],
+      [v_soc('instagram'), 'Instagram', '#E4405F'],
+      [v_soc('email'), 'Email', '#D14836'],
+      [v_soc('website'), 'Website', '#333'],
+      [v_soc('youtube'), 'YouTube', '#FF0000'],
+    ].filter(s => s[0]);
+    if (socialIcons.length) {
+      html += `<div style="margin:20px 0;"><div style="font-size:0.85rem;font-weight:700;color:var(--text);margin-bottom:10px;">🔗 Connect</div><div style="display:flex;gap:8px;flex-wrap:wrap;">`;
+      socialIcons.forEach(([_, name, color]) => {
+        html += `<span style="background:${color};color:#fff;padding:5px 14px;border-radius:6px;font-size:0.75rem;font-weight:600;">${name}</span>`;
+      });
+      html += `</div></div>`;
+    }
+
+    // Tech
+    if (selectedTechs.size > 0) {
+      html += `<div style="margin:20px 0;"><div style="font-size:0.85rem;font-weight:700;color:var(--text);margin-bottom:10px;">⚡ Tech Stack</div><div style="display:flex;flex-wrap:wrap;gap:6px;">`;
+      selectedTechs.forEach(i => {
+        html += `<img src="${TECH[i].icon}" alt="${TECH[i].name}" height="26" style="border-radius:4px;" loading="lazy"/>`;
+      });
+      html += `</div></div>`;
+    }
+
+    // Stats
+    if (username !== 'your-username') {
+      html += `<div style="margin:24px 0;">`;
+      if (isOn('tog-stats')) html += `<img src="https://github-readme-stats.vercel.app/api?username=${username}&show_icons=true&theme=${theme}" style="max-width:100%;border-radius:10px;margin-bottom:12px;" loading="lazy"/><br/>`;
+      if (isOn('tog-langs')) html += `<img src="https://github-readme-stats.vercel.app/api/top-langs?username=${username}&layout=compact&theme=${theme}" style="max-width:100%;border-radius:10px;margin-bottom:12px;" loading="lazy"/><br/>`;
+      if (isOn('tog-streak')) html += `<img src="https://streak-stats.demolab.com/?user=${username}&theme=${theme}" style="max-width:100%;border-radius:10px;margin-bottom:12px;" loading="lazy"/><br/>`;
+      if (isOn('tog-trophies')) html += `<img src="https://github-profile-trophy.vercel.app/?username=${username}&theme=${theme}" style="max-width:100%;border-radius:10px;margin-bottom:12px;" loading="lazy"/><br/>`;
+      html += `</div>`;
+    } else if (isOn('tog-stats') || isOn('tog-streak')) {
+      html += `<div style="background:var(--surface2);border:1px dashed var(--border);border-radius:10px;padding:16px;text-align:center;color:var(--text-dim);font-size:0.82rem;margin:16px 0;">📊 Enter your GitHub username to see live stats cards</div>`;
+    }
+
+    if (isOn('tog-quote')) html += `<img src="https://quotes-github-readme.vercel.app/api?type=horizontal&theme=tokyonight" style="max-width:100%;border-radius:10px;margin-top:12px;" loading="lazy"/>`;
+
+    if (!v('username') && !v('name') && !v('tagline')) {
+      html = `<div style="color:var(--text-dim);font-size:0.85rem;text-align:center;padding:60px 0;"><div style="font-size:2.5rem;margin-bottom:16px;">✨</div><div>Fill in your details on the left<br>to see your profile README come alive here!</div></div>`;
+    }
+
+    document.getElementById('readmeRendered').innerHTML = html;
+  }
+
+  // Update tool preview
+  updateToolPreview(currentTool, username, theme);
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─────────────────────────────────────────────
+// TAB SWITCH
+// ─────────────────────────────────────────────
+function switchTab(tab, btn) {
+  activeTab = tab;
+  document.querySelectorAll('.preview-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const rendered = document.getElementById('readmeRendered');
+  const markdown = document.getElementById('readmeMarkdown');
+  if (tab === 'rendered') { rendered.style.display = 'block'; markdown.style.display = 'none'; }
+  else { rendered.style.display = 'none'; markdown.style.display = 'block'; }
+  updatePreview();
+}
+
+// ─────────────────────────────────────────────
+// COPY / DOWNLOAD
+// ─────────────────────────────────────────────
+function copyMarkdown() {
+  const md = generateMarkdown();
+  navigator.clipboard.writeText(md).then(() => showToast('✅ Copied to clipboard!')).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = md; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('✅ Copied!');
+  });
+}
+
+function downloadMarkdown() {
+  const md = generateMarkdown();
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'README.md';
+  a.click();
+  showToast('⬇ README.md downloaded!');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─────────────────────────────────────────────
+// TOOL PREVIEW
+// ─────────────────────────────────────────────
+let currentTool = 'stats';
+function selectTool(el, tool) {
+  document.querySelectorAll('.tool-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentTool = tool;
+  const username = v('username') || 'your-username';
+  updateToolPreview(tool, username, document.getElementById('sel-theme').value);
+}
+
+function updateToolPreview(tool, username, theme) {
+  const box = document.getElementById('toolPreviewContent');
+  const labels = {
+    stats: 'stats card', langs: 'top languages', streak: 'streak stats',
+    trophies: 'profile trophies', activity: 'activity graph', quote: 'random dev quote'
+  };
+  document.querySelector('#toolPreviewBox > div').textContent = `// preview — ${labels[tool]||tool}`;
+
+  if (username === 'your-username' || !username) {
+    box.innerHTML = `<span style="color:var(--text-dim)">Enter your GitHub username in the builder above to preview this tool.</span>`;
+    return;
+  }
+
+  const urls = {
+    stats: `https://github-readme-stats.vercel.app/api?username=${username}&show_icons=true&theme=${theme}`,
+    langs: `https://github-readme-stats.vercel.app/api/top-langs?username=${username}&layout=compact&theme=${theme}`,
+    streak: `https://streak-stats.demolab.com/?user=${username}&theme=${theme}`,
+    trophies: `https://github-profile-trophy.vercel.app/?username=${username}&theme=${theme}`,
+    activity: `https://github-readme-activity-graph.vercel.app/graph?username=${username}&theme=react-dark`,
+    quote: `https://quotes-github-readme.vercel.app/api?type=horizontal&theme=tokyonight`,
+  };
+
+  if (urls[tool]) {
+    box.innerHTML = `<img src="${urls[tool]}" style="max-width:100%;border-radius:10px;" loading="lazy" alt="${tool} preview"/>`;
+  }
+}
+
+// ─────────────────────────────────────────────
+// FAQ TOGGLE
+// ─────────────────────────────────────────────
+function toggleFaq(el) {
+  const item = el.closest('.faq-item');
+  item.classList.toggle('open');
+}
+
+// ─────────────────────────────────────────────
+// CARD MOUSE EFFECT
+// ─────────────────────────────────────────────
+document.querySelectorAll('.feature-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
+    const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
+    card.style.setProperty('--mx', x + '%');
+    card.style.setProperty('--my', y + '%');
+  });
+});
+
+// ─────────────────────────────────────────────
+// SCROLL REVEAL
+// ─────────────────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ─────────────────────────────────────────────
+// COUNTER ANIMATION
+// ─────────────────────────────────────────────
+function animateCounter(el, target, suffix='') {
+  let start = 0;
+  const step = target / 60;
+  const interval = setInterval(() => {
+    start += step;
+    if (start >= target) { start = target; clearInterval(interval); }
+    el.textContent = Math.floor(start).toLocaleString() + suffix;
+  }, 16);
+}
+setTimeout(() => {
+  animateCounter(document.getElementById('stat1'), 47000, '+');
+  animateCounter(document.getElementById('stat2'), 300, '+');
+  animateCounter(document.getElementById('stat3'), 2400, '+');
+}, 600);
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+updatePreview();
+</script>
+</body>
+</html>

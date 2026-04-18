@@ -1,0 +1,65 @@
+import { TechItem } from '../types';
+
+export const TECH: TechItem[] = [
+  { name: 'JavaScript', icon: 'https://img.shields.io/badge/-JavaScript-F7DF1E?logo=javascript&logoColor=black&style=flat', simple: 'JavaScript', category: 'Language' },
+  { name: 'TypeScript', icon: 'https://img.shields.io/badge/-TypeScript-3178C6?logo=typescript&logoColor=white&style=flat', simple: 'TypeScript', category: 'Language' },
+  { name: 'Python', icon: 'https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat', simple: 'Python', category: 'Language' },
+  { name: 'Rust', icon: 'https://img.shields.io/badge/-Rust-000000?logo=rust&logoColor=white&style=flat', simple: 'Rust', category: 'Language' },
+  { name: 'Go', icon: 'https://img.shields.io/badge/-Go-00ADD8?logo=go&logoColor=white&style=flat', simple: 'Go', category: 'Language' },
+  { name: 'Java', icon: 'https://img.shields.io/badge/-Java-007396?logo=openjdk&logoColor=white&style=flat', simple: 'Java', category: 'Language' },
+  { name: 'C++', icon: 'https://img.shields.io/badge/-C++-00599C?logo=c%2B%2B&logoColor=white&style=flat', simple: 'C%2B%2B', category: 'Language' },
+  { name: 'Ruby', icon: 'https://img.shields.io/badge/-Ruby-CC342D?logo=ruby&logoColor=white&style=flat', simple: 'Ruby', category: 'Language' },
+  { name: 'Swift', icon: 'https://img.shields.io/badge/-Swift-FA7343?logo=swift&logoColor=white&style=flat', simple: 'Swift', category: 'Language' },
+  { name: 'Kotlin', icon: 'https://img.shields.io/badge/-Kotlin-7F52FF?logo=kotlin&logoColor=white&style=flat', simple: 'Kotlin', category: 'Language' },
+  { name: 'PHP', icon: 'https://img.shields.io/badge/-PHP-777BB4?logo=php&logoColor=white&style=flat', simple: 'PHP', category: 'Language' },
+  { name: 'Dart', icon: 'https://img.shields.io/badge/-Dart-0175C2?logo=dart&logoColor=white&style=flat', simple: 'Dart', category: 'Language' },
+  { name: 'React', icon: 'https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black&style=flat', simple: 'React', category: 'Frontend' },
+  { name: 'Vue', icon: 'https://img.shields.io/badge/-Vue.js-4FC08D?logo=vue.js&logoColor=white&style=flat', simple: 'Vue.js', category: 'Frontend' },
+  { name: 'Angular', icon: 'https://img.shields.io/badge/-Angular-DD0031?logo=angular&logoColor=white&style=flat', simple: 'Angular', category: 'Frontend' },
+  { name: 'Next.js', icon: 'https://img.shields.io/badge/-Next.js-000000?logo=next.js&logoColor=white&style=flat', simple: 'Next.js', category: 'Frontend' },
+  { name: 'Svelte', icon: 'https://img.shields.io/badge/-Svelte-FF3E00?logo=svelte&logoColor=white&style=flat', simple: 'Svelte', category: 'Frontend' },
+  { name: 'TailwindCSS', icon: 'https://img.shields.io/badge/-TailwindCSS-06B6D4?logo=tailwind-css&logoColor=white&style=flat', simple: 'TailwindCSS', category: 'Frontend' },
+  { name: 'Flutter', icon: 'https://img.shields.io/badge/-Flutter-02569B?logo=flutter&logoColor=white&style=flat', simple: 'Flutter', category: 'Frontend' },
+  { name: 'Node.js', icon: 'https://img.shields.io/badge/-Node.js-339933?logo=node.js&logoColor=white&style=flat', simple: 'Node.js', category: 'Backend' },
+  { name: 'Django', icon: 'https://img.shields.io/badge/-Django-092E20?logo=django&logoColor=white&style=flat', simple: 'Django', category: 'Backend' },
+  { name: 'FastAPI', icon: 'https://img.shields.io/badge/-FastAPI-009688?logo=fastapi&logoColor=white&style=flat', simple: 'FastAPI', category: 'Backend' },
+  { name: 'Laravel', icon: 'https://img.shields.io/badge/-Laravel-FF2D20?logo=laravel&logoColor=white&style=flat', simple: 'Laravel', category: 'Backend' },
+  { name: 'Spring', icon: 'https://img.shields.io/badge/-Spring-6DB33F?logo=spring&logoColor=white&style=flat', simple: 'Spring', category: 'Backend' },
+  { name: 'GraphQL', icon: 'https://img.shields.io/badge/-GraphQL-E10098?logo=graphql&logoColor=white&style=flat', simple: 'GraphQL', category: 'Backend' },
+  { name: 'Docker', icon: 'https://img.shields.io/badge/-Docker-2496ED?logo=docker&logoColor=white&style=flat', simple: 'Docker', category: 'DevOps' },
+  { name: 'Kubernetes', icon: 'https://img.shields.io/badge/-Kubernetes-326CE5?logo=kubernetes&logoColor=white&style=flat', simple: 'Kubernetes', category: 'DevOps' },
+  { name: 'AWS', icon: 'https://img.shields.io/badge/-AWS-232F3E?logo=amazon-aws&logoColor=white&style=flat', simple: 'AWS', category: 'DevOps' },
+  { name: 'GCP', icon: 'https://img.shields.io/badge/-GCP-4285F4?logo=google-cloud&logoColor=white&style=flat', simple: 'GCP', category: 'DevOps' },
+  { name: 'Azure', icon: 'https://img.shields.io/badge/-Azure-0078D4?logo=microsoft-azure&logoColor=white&style=flat', simple: 'Azure', category: 'DevOps' },
+  { name: 'GitHub Actions', icon: 'https://img.shields.io/badge/-GitHub_Actions-2088FF?logo=github-actions&logoColor=white&style=flat', simple: 'GitHub_Actions', category: 'DevOps' },
+  { name: 'MongoDB', icon: 'https://img.shields.io/badge/-MongoDB-47A248?logo=mongodb&logoColor=white&style=flat', simple: 'MongoDB', category: 'Database' },
+  { name: 'PostgreSQL', icon: 'https://img.shields.io/badge/-PostgreSQL-336791?logo=postgresql&logoColor=white&style=flat', simple: 'PostgreSQL', category: 'Database' },
+  { name: 'Redis', icon: 'https://img.shields.io/badge/-Redis-DC382D?logo=redis&logoColor=white&style=flat', simple: 'Redis', category: 'Database' },
+  { name: 'MySQL', icon: 'https://img.shields.io/badge/-MySQL-4479A1?logo=mysql&logoColor=white&style=flat', simple: 'MySQL', category: 'Database' },
+  { name: 'Supabase', icon: 'https://img.shields.io/badge/-Supabase-3ECF8E?logo=supabase&logoColor=white&style=flat', simple: 'Supabase', category: 'Database' },
+  { name: 'Firebase', icon: 'https://img.shields.io/badge/-Firebase-FFCA28?logo=firebase&logoColor=black&style=flat', simple: 'Firebase', category: 'Database' },
+  { name: 'Git', icon: 'https://img.shields.io/badge/-Git-F05032?logo=git&logoColor=white&style=flat', simple: 'Git', category: 'Tools' },
+  { name: 'Linux', icon: 'https://img.shields.io/badge/-Linux-FCC624?logo=linux&logoColor=black&style=flat', simple: 'Linux', category: 'Tools' },
+  { name: 'Figma', icon: 'https://img.shields.io/badge/-Figma-F24E1E?logo=figma&logoColor=white&style=flat', simple: 'Figma', category: 'Tools' },
+  { name: 'VS Code', icon: 'https://img.shields.io/badge/-VS_Code-007ACC?logo=visual-studio-code&logoColor=white&style=flat', simple: 'VS_Code', category: 'Tools' },
+  { name: 'Vim', icon: 'https://img.shields.io/badge/-Vim-019733?logo=vim&logoColor=white&style=flat', simple: 'Vim', category: 'Tools' },
+  { name: 'Postman', icon: 'https://img.shields.io/badge/-Postman-FF6C37?logo=postman&logoColor=white&style=flat', simple: 'Postman', category: 'Tools' },
+];
+
+export const TECH_CATEGORIES = ['All', 'Language', 'Frontend', 'Backend', 'DevOps', 'Database', 'Tools'];
+
+export const THEMES = [
+  { value: 'tokyonight', label: 'Tokyo Night' },
+  { value: 'radical', label: 'Radical' },
+  { value: 'merko', label: 'Merko' },
+  { value: 'gruvbox', label: 'Gruvbox' },
+  { value: 'onedark', label: 'One Dark' },
+  { value: 'cobalt', label: 'Cobalt' },
+  { value: 'synthwave', label: 'Synthwave' },
+  { value: 'highcontrast', label: 'High Contrast' },
+  { value: 'dracula', label: 'Dracula' },
+];
+
+export const BRAND_COLORS = [
+  '#6c63ff', '#00e5ff', '#ff6b9d', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6',
+];

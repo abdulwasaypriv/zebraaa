@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Global scrollbar ───────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(108,99,255,0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(108,99,255,0.6); }
+
+/* ── Keyframes ──────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  to { background-position: 200% center; }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(108,99,255,0.3); }
+  50%       { box-shadow: 0 0 40px rgba(108,99,255,0.7), 0 0 80px rgba(0,229,255,0.2); }
+}
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ── Animation utility classes ──────────────────────────────────────── */
+.animate-fade-up      { animation: fadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-fade-in      { animation: fadeIn 0.5s ease both; }
+.animate-scale-in     { animation: scaleIn 0.5s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-slide-right  { animation: slideRight 0.5s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-float        { animation: float 3s ease-in-out infinite; }
+.animate-pulse-glow   { animation: pulse-glow 2.5s ease-in-out infinite; }
+.animate-spin-slow    { animation: spin-slow 12s linear infinite; }
+.animate-gradient     { background-size: 300% 300%; animation: gradientShift 6s ease infinite; }
+
+/* Stagger delays */
+.delay-100  { animation-delay: 100ms; }
+.delay-200  { animation-delay: 200ms; }
+.delay-300  { animation-delay: 300ms; }
+.delay-400  { animation-delay: 400ms; }
+.delay-500  { animation-delay: 500ms; }
+.delay-600  { animation-delay: 600ms; }
+.delay-700  { animation-delay: 700ms; }
+.delay-800  { animation-delay: 800ms; }
+
+/* ── Scroll reveal (JS-toggled) ─────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.65s cubic-bezier(0.16,1,0.3,1),
+              transform 0.65s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Gradient text helper ────────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #6c63ff, #00e5ff, #ff6b9d);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+}
+
+/* ── Card hover glow ─────────────────────────────────────────────────── */
+.card-hover {
+  transition: transform 0.3s cubic-bezier(0.16,1,0.3,1),
+              box-shadow 0.3s ease,
+              border-color 0.3s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(108,99,255,0.15);
+}
+
+/* ── Button glow pulse ───────────────────────────────────────────────── */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 50px rgba(108,99,255,0.6) !important;
+}
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.btn-primary:hover::after { opacity: 1; }
+
+/* ── Input focus glow ────────────────────────────────────────────────── */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(108,99,255,0.25);
+}
+
+/* ── Smooth page transition ──────────────────────────────────────────── */
+main > * {
+  animation: fadeIn 0.35s ease both;
+}
