@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { Page, ProfileData } from './types';
 import Nav from './components/Nav';
 import Footer from './components/Footer';
@@ -47,6 +48,7 @@ export default function App() {
         )}
       </main>
       <Footer />
+      <Analytics />
     </div>
   );
 }
