@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { useScrollReveal } from '../lib/useScrollReveal';
 import { Page } from '../types';
 import { Zap, Star, ArrowRight, Github, Sparkles, Eye, Download } from 'lucide-react';
@@ -35,24 +36,45 @@ function useCountUp(target: number, duration = 2000, suffix = '') {
   return { count, ref, display: count.toLocaleString() + suffix };
 }
 
-function StatCounter({ target, suffix, label }: { target: number; suffix: string; label: string }) {
-  const { count, ref, display } = useCountUp(target, 1800, suffix);
-  void count;
+function StatCounter({ target, suffix, label, delay }: { target: number; suffix: string; label: string; delay: number }) {
+  const { ref, display } = useCountUp(target, 1800, suffix);
   return (
-    <div ref={ref} className="text-center">
-      <div className="text-3xl md:text-4xl font-extrabold tracking-tight" style={{ color: '#00e5ff' }}>{display}</div>
-      <div className="text-xs mt-1" style={{ color: '#7878aa', fontFamily: 'monospace', letterSpacing: '0.08em' }}>{label}</div>
-    </div>
+    <motion.div
+      ref={ref}
+      className="text-center"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay, duration: 0.5, type: 'spring', stiffness: 200 }}
+    >
+      <div
+        className="text-3xl md:text-4xl font-extrabold tracking-tight gradient-text-static"
+      >
+        {display}
+      </div>
+      <div className="text-xs mt-1" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.08em' }}>
+        {label}
+      </div>
+    </motion.div>
   );
 }
 
 const FEATURES_PREVIEW = [
-  { icon: <Sparkles size={20} />, title: 'AI Bio Tuner', desc: 'Paste your resume, get 3 AI-crafted bio styles instantly.' },
-  { icon: <Github size={20} />, title: 'One-Click GitHub Import', desc: 'Auto-fill tech stack and stats from any GitHub profile.' },
-  { icon: <Eye size={20} />, title: 'Live Split-Screen Preview', desc: 'See your README update in real-time as you type.' },
-  { icon: <Zap size={20} />, title: 'Dynamic Widgets', desc: 'LeetCode stats, blog posts, CodeWars ranks — all automated.' },
-  { icon: <Star size={20} />, title: '300+ Tech Icons', desc: 'Select from a massive library with smart category filters.' },
-  { icon: <Download size={20} />, title: 'One-Click Export', desc: 'Copy or download your README.md instantly.' },
+  { icon: <Sparkles size={20} />, title: 'AI Bio Tuner', desc: 'Paste your resume, get 3 AI-crafted bio styles instantly.', color: '#f43f8f' },
+  { icon: <Github size={20} />, title: 'One-Click GitHub Import', desc: 'Auto-fill tech stack and stats from any GitHub profile.', color: '#6c63ff' },
+  { icon: <Eye size={20} />, title: 'Live Split-Screen Preview', desc: 'See your README update in real-time as you type.', color: '#0ea5e9' },
+  { icon: <Zap size={20} />, title: 'Dynamic Widgets', desc: 'LeetCode stats, blog posts, CodeWars ranks — all automated.', color: '#10b981' },
+  { icon: <Star size={20} />, title: '300+ Tech Icons', desc: 'Select from a massive library with smart category filters.', color: '#f59e0b' },
+  { icon: <Download size={20} />, title: 'One-Click Export', desc: 'Copy or download your README.md instantly.', color: '#8b5cf6' },
+];
+
+const TESTIMONIALS = [
+  { quote: '"Finally, a README generator that doesn\'t look like 2015. The live preview is incredible."', author: '@alexdev' },
+  { quote: '"The AI bio generator saved me 30 minutes of staring at a blank text area."', author: '@sarah_codes' },
+  { quote: '"One-click GitHub import is a game changer. My whole stack was selected in 2 seconds."', author: '@rustacean99' },
+  { quote: '"This tool is miles ahead of GPRM. The design and UX are on another level."', author: '@devguru_js' },
+  { quote: '"My profile looks so professional now. Got compliments from two recruiters already!"', author: '@carla_dev' },
+  { quote: '"Clean, fast, free. What more could you ask for? Thank you ProfileCraft team!"', author: '@open_src_fan' },
 ];
 
 export default function HomePage({ onNavigate }: HomePageProps) {
@@ -94,214 +116,283 @@ export default function HomePage({ onNavigate }: HomePageProps) {
 
   return (
     <div className="relative z-10">
+      {/* Aurora orbs */}
+      <div className="aurora-orb aurora-orb-1" style={{ top: '5%', left: '15%' }} />
+      <div className="aurora-orb aurora-orb-2" style={{ top: '20%', right: '10%' }} />
+      <div className="aurora-orb aurora-orb-3" style={{ top: '60%', left: '50%' }} />
+
       {/* HERO */}
-      <section className="min-h-screen flex flex-col items-center justify-center text-center px-6 pt-24 pb-16">
-        <div
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs mb-8 animate-pulse animate-fade-up"
+      <section className="min-h-screen flex flex-col items-center justify-center text-center px-6 pt-24 pb-16 relative overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs mb-8"
           style={{
-            background: 'rgba(108,99,255,0.12)',
-            border: '1px solid rgba(108,99,255,0.3)',
-            color: '#00e5ff',
-            fontFamily: 'monospace',
+            background: 'var(--accent-lighter)',
+            border: '1px solid rgba(108,99,255,0.2)',
+            color: 'var(--accent)',
+            fontFamily: 'var(--font-mono)',
             letterSpacing: '0.08em',
           }}
         >
-          <span style={{ fontSize: '0.6rem' }}>◉</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
           Free GitHub Profile README Generator — No Sign-up Required
-        </div>
+        </motion.div>
 
-        <h1 className="font-extrabold tracking-tight leading-none mb-6" style={{ fontSize: 'clamp(2.8rem, 8vw, 6.5rem)', letterSpacing: '-0.04em' }}>
-          <span className="block" style={{ color: '#e8e8ff' }}>Craft Your</span>
-          <span
+        <motion.h1
+          className="font-extrabold tracking-tight leading-none mb-6"
+          style={{ fontSize: 'clamp(2.8rem, 8vw, 6.5rem)', letterSpacing: '-0.04em' }}
+        >
+          <motion.span
             className="block"
-            style={{
-              background: 'linear-gradient(135deg, #6c63ff, #00e5ff, #ff6b9d)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundSize: '200% auto',
-              animation: 'shimmer 3s linear infinite',
-              minHeight: '1.2em',
-            }}
+            style={{ color: 'var(--text-primary)' }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35, duration: 0.6, type: 'spring', stiffness: 150 }}
           >
-            {typed}<span style={{ WebkitTextFillColor: '#00e5ff', animation: 'blink 1s step-end infinite' }}>|</span>
-          </span>
-        </h1>
+            Craft Your
+          </motion.span>
+          <motion.span
+            className="block gradient-text"
+            style={{ minHeight: '1.2em' }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.6, type: 'spring', stiffness: 150 }}
+          >
+            {typed}<span style={{ color: 'var(--accent)', animation: 'blink 1s step-end infinite' }}>|</span>
+          </motion.span>
+        </motion.h1>
 
-        <p className="text-lg max-w-xl mx-auto mb-10 leading-relaxed" style={{ color: '#7878aa' }}>
+        <motion.p
+          className="text-lg max-w-xl mx-auto mb-10 leading-relaxed"
+          style={{ color: 'var(--text-secondary)' }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.65, duration: 0.5 }}
+        >
           Generate stunning, personalized GitHub profile READMEs in seconds. Flex your stats, showcase your stack, and stand out from 100 million developers — completely free.
-        </p>
+        </motion.p>
 
-        <div className="flex gap-4 flex-wrap justify-center mb-20">
-          <button
+        <motion.div
+          className="flex gap-4 flex-wrap justify-center mb-20"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.8, duration: 0.5, type: 'spring', stiffness: 200 }}
+        >
+          <motion.button
             onClick={() => onNavigate('builder')}
-            className="flex items-center gap-2 px-8 py-4 rounded-full font-bold text-base transition-all duration-300 hover:-translate-y-1"
-            style={{
-              background: 'linear-gradient(135deg, #6c63ff, #8b5cf6)',
-              color: '#fff',
-              boxShadow: '0 0 40px rgba(108,99,255,0.5)',
-            }}
+            className="btn-primary flex items-center gap-2 px-8 py-4 text-base"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             Start Building Free <ArrowRight size={18} />
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             onClick={() => onNavigate('features')}
-            className="px-8 py-4 rounded-full font-semibold text-base transition-all duration-300 hover:border-violet-500"
-            style={{ background: 'transparent', color: '#e8e8ff', border: '1px solid rgba(120,120,255,0.2)' }}
+            className="btn-secondary px-8 py-4 text-base"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             See Features
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
 
         {/* Stats */}
-        <div className="flex gap-12 md:gap-20 flex-wrap justify-center reveal">
-          <StatCounter target={47000} suffix="+" label="Profiles Created" />
-          <StatCounter target={300} suffix="+" label="Tech Options" />
-          <StatCounter target={2400} suffix="+" label="GitHub Stars" />
+        <div className="flex gap-12 md:gap-20 flex-wrap justify-center">
+          <StatCounter target={47000} suffix="+" label="Profiles Created" delay={0.9} />
+          <StatCounter target={300} suffix="+" label="Tech Options" delay={1.0} />
+          <StatCounter target={2400} suffix="+" label="GitHub Stars" delay={1.1} />
         </div>
       </section>
 
       {/* Divider */}
-      <div className="h-px" style={{ background: 'linear-gradient(90deg, transparent, #6c63ff, transparent)', opacity: 0.3 }} />
+      <div className="gradient-divider" />
 
       {/* FEATURE PREVIEW GRID */}
       <section className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <div className="text-xs mb-3" style={{ color: '#00e5ff', fontFamily: 'monospace', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+            <motion.div
+              className="section-label mb-3"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+            >
               // what makes us different
-            </div>
-            <h2 className="font-extrabold tracking-tight" style={{ fontSize: 'clamp(2rem, 4vw, 3.2rem)', letterSpacing: '-0.04em', color: '#e8e8ff' }}>
+            </motion.div>
+            <motion.h2
+              className="font-extrabold tracking-tight"
+              style={{ fontSize: 'clamp(2rem, 4vw, 3.2rem)', letterSpacing: '-0.04em', color: 'var(--text-primary)' }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
               Built for Developers,<br />
-              <span style={{ background: 'linear-gradient(135deg, #6c63ff, #00e5ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                by Developers
-              </span>
-            </h2>
-            <p className="text-base max-w-xl mx-auto mt-4" style={{ color: '#7878aa' }}>
+              <span className="gradient-text-static">by Developers</span>
+            </motion.h2>
+            <motion.p
+              className="text-base max-w-xl mx-auto mt-4"
+              style={{ color: 'var(--text-secondary)' }}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+            >
               ProfileCraft goes beyond basic generators with AI-powered tools, live previews, and dynamic widgets that set your profile apart.
-            </p>
+            </motion.p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 reveal">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {FEATURES_PREVIEW.map((f, i) => (
-              <div
+              <motion.div
                 key={i}
-                className="p-6 rounded-2xl border transition-all duration-300 hover:-translate-y-1 cursor-pointer"
-                style={{
-                  background: '#0d0d14',
-                  borderColor: 'rgba(120,120,255,0.12)',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(108,99,255,0.4)')}
-                onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(120,120,255,0.12)')}
+                initial={{ opacity: 0, y: 30, rotateX: 10 }}
+                whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08, duration: 0.5, type: 'spring', stiffness: 200 }}
+                whileHover={{ y: -6, boxShadow: '0 20px 60px rgba(108,99,255,0.12)' }}
+                className="p-6 rounded-2xl cursor-pointer glass-card"
                 onClick={() => onNavigate('builder')}
               >
                 <div
                   className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-                  style={{ background: 'rgba(108,99,255,0.15)', color: '#00e5ff' }}
+                  style={{ background: `${f.color}15`, color: f.color }}
                 >
                   {f.icon}
                 </div>
-                <h3 className="font-bold text-base mb-2" style={{ color: '#e8e8ff' }}>{f.title}</h3>
-                <p className="text-sm leading-relaxed" style={{ color: '#7878aa' }}>{f.desc}</p>
-              </div>
+                <h3 className="font-bold text-base mb-2" style={{ color: 'var(--text-primary)' }}>{f.title}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{f.desc}</p>
+              </motion.div>
             ))}
           </div>
 
-          <div className="text-center mt-12">
-            <button
+          <motion.div
+            className="text-center mt-12"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+          >
+            <motion.button
               onClick={() => onNavigate('builder')}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-bold text-base transition-all duration-300 hover:-translate-y-1"
-              style={{
-                background: 'linear-gradient(135deg, #6c63ff, #8b5cf6)',
-                color: '#fff',
-                boxShadow: '0 0 40px rgba(108,99,255,0.4)',
-              }}
+              className="btn-primary inline-flex items-center gap-2 px-8 py-4 text-base"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               Try the Builder Now <ArrowRight size={18} />
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         </div>
       </section>
 
-      {/* Divider */}
-      <div className="h-px" style={{ background: 'linear-gradient(90deg, transparent, #6c63ff, transparent)', opacity: 0.3 }} />
+      <div className="gradient-divider" />
 
       {/* HOW IT WORKS */}
       <section className="py-24 px-6">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="text-xs mb-3" style={{ color: '#00e5ff', fontFamily: 'monospace', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+          <motion.div className="section-label mb-3" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
             // how it works
-          </div>
-          <h2 className="font-extrabold tracking-tight mb-4" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', letterSpacing: '-0.04em', color: '#e8e8ff' }}>
+          </motion.div>
+          <motion.h2
+            className="font-extrabold tracking-tight mb-4"
+            style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', letterSpacing: '-0.04em', color: 'var(--text-primary)' }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
             Ready in Under 60 Seconds
-          </h2>
-          <p className="mb-16 text-base" style={{ color: '#7878aa' }}>
+          </motion.h2>
+          <motion.p
+            className="mb-16 text-base"
+            style={{ color: 'var(--text-secondary)' }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
             Three simple steps to a professional GitHub profile.
-          </p>
+          </motion.p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 reveal">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               { step: '01', title: 'Import or Fill In', desc: 'Paste your GitHub username for one-click import, or fill in your details manually.' },
               { step: '02', title: 'Customize & Preview', desc: 'Choose your tech stack, enable stats widgets, and watch a live split-screen preview.' },
               { step: '03', title: 'Copy & Deploy', desc: 'Copy the markdown or download README.md and paste it into your GitHub profile repo.' },
             ].map((step, i) => (
-              <div key={i} className="relative">
+              <motion.div
+                key={i}
+                className="relative"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15, duration: 0.5, type: 'spring', stiffness: 200 }}
+              >
                 <div
-                  className="text-5xl font-extrabold mb-4"
-                  style={{ background: 'linear-gradient(135deg, #6c63ff, #00e5ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.04em' }}
+                  className="text-5xl font-extrabold mb-4 gradient-text-static"
+                  style={{ letterSpacing: '-0.04em' }}
                 >
                   {step.step}
                 </div>
-                <h3 className="font-bold text-lg mb-2" style={{ color: '#e8e8ff' }}>{step.title}</h3>
-                <p className="text-sm leading-relaxed" style={{ color: '#7878aa' }}>{step.desc}</p>
+                <h3 className="font-bold text-lg mb-2" style={{ color: 'var(--text-primary)' }}>{step.title}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{step.desc}</p>
                 {i < 2 && (
-                  <div className="hidden md:block absolute top-8 -right-4 text-2xl" style={{ color: '#6c63ff', opacity: 0.5 }}>→</div>
+                  <div className="hidden md:block absolute top-8 -right-4 text-2xl" style={{ color: 'var(--accent)', opacity: 0.4 }}>→</div>
                 )}
-              </div>
+              </motion.div>
             ))}
           </div>
 
-          <div className="mt-14">
-            <button
+          <motion.div
+            className="mt-14"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            <motion.button
               onClick={() => onNavigate('builder')}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-bold text-base transition-all duration-300 hover:-translate-y-1"
-              style={{
-                background: 'linear-gradient(135deg, #6c63ff, #8b5cf6)',
-                color: '#fff',
-                boxShadow: '0 0 40px rgba(108,99,255,0.4)',
-              }}
+              className="btn-primary inline-flex items-center gap-2 px-8 py-4 text-base"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               Get Started Free <ArrowRight size={18} />
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         </div>
       </section>
 
-      {/* Testimonials / social proof strip */}
-      <div className="h-px" style={{ background: 'linear-gradient(90deg, transparent, #6c63ff, transparent)', opacity: 0.3 }} />
-      <section className="py-16 px-6 text-center">
-        <div className="max-w-3xl mx-auto">
-          <div className="flex items-center justify-center gap-2 mb-6">
+      {/* Testimonials marquee */}
+      <div className="gradient-divider" />
+      <section className="py-16 px-6 overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            className="flex items-center justify-center gap-2 mb-8"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
             {[...Array(5)].map((_, i) => <Star key={i} size={16} fill="#f59e0b" color="#f59e0b" />)}
-            <span className="text-sm ml-2" style={{ color: '#7878aa' }}>Loved by developers worldwide</span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 reveal">
-            {[
-              { quote: '"Finally, a README generator that doesn\'t look like 2015. The live preview is incredible."', author: '@alexdev' },
-              { quote: '"The AI bio generator saved me 30 minutes of staring at a blank text area."', author: '@sarah_codes' },
-              { quote: '"One-click GitHub import is a game changer. My whole stack was selected in 2 seconds."', author: '@rustacean99' },
-            ].map((t, i) => (
-              <div key={i} className="p-5 rounded-xl border text-left" style={{ background: '#0d0d14', borderColor: 'rgba(120,120,255,0.12)' }}>
-                <p className="text-sm leading-relaxed mb-3" style={{ color: '#e8e8ff' }}>{t.quote}</p>
-                <p className="text-xs" style={{ color: '#6c63ff' }}>{t.author}</p>
-              </div>
-            ))}
+            <span className="text-sm ml-2" style={{ color: 'var(--text-muted)' }}>Loved by developers worldwide</span>
+          </motion.div>
+
+          <div className="marquee-container">
+            <div className="marquee-track">
+              {[...TESTIMONIALS, ...TESTIMONIALS].map((t, i) => (
+                <div
+                  key={i}
+                  className="flex-shrink-0 w-80 p-5 rounded-2xl glass-card"
+                  style={{ cursor: 'default' }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = ''}
+                >
+                  <p className="text-sm leading-relaxed mb-3" style={{ color: 'var(--text-primary)' }}>{t.quote}</p>
+                  <p className="text-xs font-semibold" style={{ color: 'var(--accent)' }}>{t.author}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
-
-      <style>{`
-        /* keyframes now in index.css */
-      `}</style>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { Page } from '../types';
+import { motion } from 'framer-motion';
 import { useScrollReveal } from '../lib/useScrollReveal';
 import { ArrowRight, Sparkles, Github, Eye, Rss, Trophy, Sword, Palette, Zap, BarChart3, Link2, Star, Coffee } from 'lucide-react';
 
@@ -13,7 +14,7 @@ const FEATURES = [
     title: 'AI Bio Tuner',
     desc: 'Paste your resume or bullet points and get three AI-crafted bio styles instantly — Professional, Creative, and Minimalist. No more staring at a blank text area.',
     highlight: 'Solves writer\'s block for every developer.',
-    color: '#ff6b9d',
+    color: '#f43f8f',
   },
   {
     icon: <Github size={22} />,
@@ -29,7 +30,7 @@ const FEATURES = [
     title: 'Live Split-Screen Preview',
     desc: 'As you type your name or toggle a widget, your README updates instantly on the right side with smooth transitions. Experience premium SaaS-level editing.',
     highlight: 'Feels like building a website, not filling a form.',
-    color: '#00e5ff',
+    color: '#0ea5e9',
   },
   {
     icon: <Palette size={22} />,
@@ -124,128 +125,211 @@ export default function FeaturesPage({ onNavigate }: FeaturesPageProps) {
   useScrollReveal();
   return (
     <div className="relative z-10 pt-20">
+      {/* Aurora orbs */}
+      <div className="aurora-orb aurora-orb-1" style={{ top: '10%', right: '20%' }} />
+      <div className="aurora-orb aurora-orb-2" style={{ top: '50%', left: '5%' }} />
+
       {/* Hero */}
       <section className="py-20 px-6 text-center">
         <div className="max-w-4xl mx-auto">
-          <div className="text-xs mb-3" style={{ color: '#00e5ff', fontFamily: 'monospace', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+          <motion.div
+            className="section-label mb-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1 }}
+          >
             // why profilecraft
-          </div>
-          <h1 className="font-extrabold tracking-tight mb-4" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', letterSpacing: '-0.04em', color: '#e8e8ff' }}>
+          </motion.div>
+          <motion.h1
+            className="font-extrabold tracking-tight mb-4"
+            style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', letterSpacing: '-0.04em', color: 'var(--text-primary)' }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5, type: 'spring' }}
+          >
             Everything You Need to{' '}
-            <span style={{ background: 'linear-gradient(135deg, #6c63ff, #00e5ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Stand Out
-            </span>
-          </h1>
-          <p className="text-lg max-w-2xl mx-auto" style={{ color: '#7878aa' }}>
+            <span className="gradient-text-static">Stand Out</span>
+          </motion.h1>
+          <motion.p
+            className="text-lg max-w-2xl mx-auto"
+            style={{ color: 'var(--text-secondary)' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.35 }}
+          >
             Professional-grade tools that go far beyond what any other GitHub README generator offers. We built the features developers actually need.
-          </p>
+          </motion.p>
         </div>
       </section>
 
-      <div className="h-px" style={{ background: 'linear-gradient(90deg, transparent, #6c63ff, transparent)', opacity: 0.3 }} />
+      <div className="gradient-divider" />
 
       {/* Features Grid */}
       <section className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
-            <div className="text-xs mb-3" style={{ color: '#00e5ff', fontFamily: 'monospace', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
-              // feature breakdown
-            </div>
-            <h2 className="font-extrabold tracking-tight" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', letterSpacing: '-0.04em', color: '#e8e8ff' }}>
+            <div className="section-label mb-3">// feature breakdown</div>
+            <h2 className="font-extrabold tracking-tight" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', letterSpacing: '-0.04em', color: 'var(--text-primary)' }}>
               12 Powerful Features
             </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 reveal">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {FEATURES.map((f, i) => (
-              <div
+              <motion.div
                 key={i}
-                className="p-6 rounded-2xl border transition-all duration-300 group"
-                style={{ background: '#0d0d14', borderColor: 'rgba(120,120,255,0.12)', cursor: 'default' }}
-                onMouseEnter={e => (e.currentTarget.style.borderColor = `${f.color}66`)}
-                onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(120,120,255,0.12)')}
+                className="p-6 rounded-2xl glass-card group"
+                style={{ cursor: 'default' }}
+                initial={{ opacity: 0, y: 30, x: i % 2 === 0 ? -20 : 20 }}
+                whileInView={{ opacity: 1, y: 0, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.06, duration: 0.5, type: 'spring', stiffness: 200 }}
+                whileHover={{ y: -6, boxShadow: `0 20px 60px ${f.color}15` }}
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div
+                  <motion.div
                     className="w-11 h-11 rounded-xl flex items-center justify-center"
-                    style={{ background: `${f.color}18`, color: f.color }}
+                    style={{ background: `${f.color}12`, color: f.color }}
+                    whileHover={{ rotate: 10, scale: 1.1 }}
+                    transition={{ type: 'spring', stiffness: 300 }}
                   >
                     {f.icon}
-                  </div>
+                  </motion.div>
                   <span
-                    className="text-xs font-semibold px-2 py-0.5 rounded-full"
-                    style={{ background: `${f.color}15`, color: f.color, fontFamily: 'monospace' }}
+                    className="tag-badge"
+                    style={{ background: `${f.color}10`, color: f.color }}
                   >
                     {f.tag}
                   </span>
                 </div>
-                <h3 className="font-bold text-base mb-2" style={{ color: '#e8e8ff' }}>{f.title}</h3>
-                <p className="text-sm leading-relaxed mb-3" style={{ color: '#7878aa' }}>{f.desc}</p>
+                <h3 className="font-bold text-base mb-2" style={{ color: 'var(--text-primary)' }}>{f.title}</h3>
+                <p className="text-sm leading-relaxed mb-3" style={{ color: 'var(--text-secondary)' }}>{f.desc}</p>
                 <p className="text-xs font-semibold italic" style={{ color: f.color }}>"{f.highlight}"</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      <div className="h-px" style={{ background: 'linear-gradient(90deg, transparent, #6c63ff, transparent)', opacity: 0.3 }} />
+      <div className="gradient-divider" />
 
       {/* Comparison Table */}
       <section className="py-20 px-6">
         <div className="max-w-3xl mx-auto text-center">
-          <div className="text-xs mb-3" style={{ color: '#00e5ff', fontFamily: 'monospace', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+          <motion.div
+            className="section-label mb-3"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
             // vs the competition
-          </div>
-          <h2 className="font-extrabold tracking-tight mb-4" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', letterSpacing: '-0.04em', color: '#e8e8ff' }}>
+          </motion.div>
+          <motion.h2
+            className="font-extrabold tracking-tight mb-4"
+            style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', letterSpacing: '-0.04em', color: 'var(--text-primary)' }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
             ProfileCraft vs GPRM
-          </h2>
-          <p className="mb-12" style={{ color: '#7878aa' }}>See exactly what makes ProfileCraft the smarter choice.</p>
+          </motion.h2>
+          <motion.p
+            className="mb-12"
+            style={{ color: 'var(--text-secondary)' }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            See exactly what makes ProfileCraft the smarter choice.
+          </motion.p>
 
-          <div className="rounded-2xl border overflow-hidden" style={{ background: '#0d0d14', borderColor: 'rgba(120,120,255,0.12)' }}>
-            <div className="grid grid-cols-3 px-6 py-4 text-sm font-bold" style={{ background: '#12121c', borderBottom: '1px solid rgba(120,120,255,0.12)' }}>
-              <div style={{ color: '#7878aa' }}>Feature</div>
-              <div className="text-center" style={{ color: '#00e5ff' }}>ProfileCraft</div>
-              <div className="text-center" style={{ color: '#7878aa' }}>GPRM</div>
+          <motion.div
+            className="rounded-2xl overflow-hidden glass-card"
+            style={{ cursor: 'default' }}
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <div
+              className="grid grid-cols-3 px-6 py-4 text-sm font-bold"
+              style={{ background: 'var(--bg-tertiary)', borderBottom: '1px solid var(--border-primary)' }}
+            >
+              <div style={{ color: 'var(--text-muted)' }}>Feature</div>
+              <div className="text-center" style={{ color: 'var(--accent)' }}>ProfileCraft</div>
+              <div className="text-center" style={{ color: 'var(--text-muted)' }}>GPRM</div>
             </div>
             {COMPARISON.map((row, i) => (
-              <div
+              <motion.div
                 key={i}
-                className="grid grid-cols-3 px-6 py-4 text-sm border-b last:border-b-0"
-                style={{ borderColor: 'rgba(120,120,255,0.08)' }}
+                className="grid grid-cols-3 px-6 py-4 text-sm"
+                style={{ borderBottom: i < COMPARISON.length - 1 ? '1px solid var(--border-primary)' : 'none' }}
+                initial={{ opacity: 0, x: -10 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.04, duration: 0.3 }}
               >
-                <div style={{ color: '#9090cc' }}>{row.feature}</div>
-                <div className="text-center text-lg">{row.profilecraft ? '✅' : '❌'}</div>
-                <div className="text-center text-lg">{row.gprm ? '✅' : '❌'}</div>
-              </div>
+                <div style={{ color: 'var(--text-secondary)' }}>{row.feature}</div>
+                <div className="text-center text-lg">
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    whileInView={{ scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.04 + 0.15, type: 'spring', stiffness: 400, damping: 15 }}
+                  >
+                    {row.profilecraft ? '✅' : '❌'}
+                  </motion.span>
+                </div>
+                <div className="text-center text-lg">
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    whileInView={{ scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.04 + 0.2, type: 'spring', stiffness: 400, damping: 15 }}
+                  >
+                    {row.gprm ? '✅' : '❌'}
+                  </motion.span>
+                </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      <div className="h-px" style={{ background: 'linear-gradient(90deg, transparent, #6c63ff, transparent)', opacity: 0.3 }} />
+      <div className="gradient-divider" />
 
       {/* CTA */}
       <section className="py-20 px-6 text-center">
         <div className="max-w-2xl mx-auto">
-          <h2 className="font-extrabold tracking-tight mb-4" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', letterSpacing: '-0.04em', color: '#e8e8ff' }}>
+          <motion.h2
+            className="font-extrabold tracking-tight mb-4"
+            style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', letterSpacing: '-0.04em', color: 'var(--text-primary)' }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
             Ready to Build Your<br />
-            <span style={{ background: 'linear-gradient(135deg, #6c63ff, #00e5ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              Perfect Profile?
-            </span>
-          </h2>
-          <p className="mb-8 text-base" style={{ color: '#7878aa' }}>
+            <span className="gradient-text-static">Perfect Profile?</span>
+          </motion.h2>
+          <motion.p
+            className="mb-8 text-base"
+            style={{ color: 'var(--text-secondary)' }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
             Join thousands of developers who use ProfileCraft to make their first impression count.
-          </p>
-          <button
+          </motion.p>
+          <motion.button
             onClick={() => onNavigate('builder')}
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-bold text-base transition-all duration-300 hover:-translate-y-1"
-            style={{
-              background: 'linear-gradient(135deg, #6c63ff, #8b5cf6)',
-              color: '#fff',
-              boxShadow: '0 0 40px rgba(108,99,255,0.4)',
-            }}
+            className="btn-primary inline-flex items-center gap-2 px-8 py-4 text-base"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
           >
             Start Building Free <ArrowRight size={18} />
-          </button>
+          </motion.button>
         </div>
       </section>
     </div>

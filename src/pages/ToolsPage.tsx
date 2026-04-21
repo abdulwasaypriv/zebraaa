@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollReveal } from '../lib/useScrollReveal';
 import { Page } from '../types';
 import { ArrowRight, ChevronDown } from 'lucide-react';
@@ -124,49 +125,74 @@ export default function ToolsPage({ onNavigate, githubUsername, statsTheme }: To
   const [activeTool, setActiveTool] = useState('stats');
   const [previewUsername, setPreviewUsername] = useState(githubUsername || '');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   const activeToolData = TOOLS.find(t => t.id === activeTool);
   const previewUrl = activeToolData?.getUrl(previewUsername || 'torvalds', statsTheme || 'tokyonight');
 
   return (
     <div className="relative z-10 pt-20">
+      {/* Aurora orb */}
+      <div className="aurora-orb aurora-orb-3" style={{ top: '30%', right: '10%' }} />
+
       {/* Header */}
       <section className="py-16 px-6 text-center">
         <div className="max-w-3xl mx-auto">
-          <div className="text-xs mb-3" style={{ color: '#00e5ff', fontFamily: 'monospace', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+          <motion.div
+            className="section-label mb-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1 }}
+          >
             // integrated tools
-          </div>
-          <h1 className="font-extrabold tracking-tight mb-4" style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)', letterSpacing: '-0.04em', color: '#e8e8ff' }}>
+          </motion.div>
+          <motion.h1
+            className="font-extrabold tracking-tight mb-4"
+            style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)', letterSpacing: '-0.04em', color: 'var(--text-primary)' }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, type: 'spring' }}
+          >
             Powerful Stats Tools
-          </h1>
-          <p className="text-base" style={{ color: '#7878aa' }}>
+          </motion.h1>
+          <motion.p
+            className="text-base"
+            style={{ color: 'var(--text-secondary)' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.35 }}
+          >
             All the GitHub stat widgets you need, integrated and previewed right here.
-          </p>
+          </motion.p>
         </div>
       </section>
 
-      <div className="h-px" style={{ background: 'linear-gradient(90deg, transparent, #6c63ff, transparent)', opacity: 0.3 }} />
+      <div className="gradient-divider" />
 
       {/* Tools Section */}
       <section className="py-16 px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="rounded-2xl border p-6 mb-6" style={{ background: '#0d0d14', borderColor: 'rgba(120,120,255,0.12)' }}>
+          <motion.div
+            className="rounded-2xl p-6 mb-6 glass-card"
+            style={{ cursor: 'default' }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.5 }}
+          >
             <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
               <div>
-                <h2 className="font-bold text-lg mb-1" style={{ color: '#e8e8ff' }}>GitHub Stats Tools</h2>
-                <p className="text-sm" style={{ color: '#7878aa' }}>Click any tool to preview it. Enter a GitHub username to see live data.</p>
+                <h2 className="font-bold text-lg mb-1" style={{ color: 'var(--text-primary)' }}>GitHub Stats Tools</h2>
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Click any tool to preview it. Enter a GitHub username to see live data.</p>
               </div>
               <div className="flex items-center gap-2">
                 <input
                   value={previewUsername}
-                  onChange={e => setPreviewUsername(e.target.value)}
+                  onChange={e => { setPreviewUsername(e.target.value); setImgLoaded(false); }}
                   placeholder="GitHub username to preview"
-                  className="px-4 py-2 rounded-lg text-sm outline-none"
+                  className="px-4 py-2.5 rounded-xl text-sm outline-none glass-input"
                   style={{
-                    background: '#12121c',
-                    border: '1px solid rgba(120,120,255,0.2)',
-                    color: '#e8e8ff',
-                    fontFamily: 'monospace',
+                    color: 'var(--text-primary)',
+                    fontFamily: 'var(--font-mono)',
                     width: '220px',
                   }}
                 />
@@ -174,129 +200,184 @@ export default function ToolsPage({ onNavigate, githubUsername, statsTheme }: To
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-              {TOOLS.map(tool => (
-                <button
+              {TOOLS.map((tool, i) => (
+                <motion.button
                   key={tool.id}
-                  onClick={() => setActiveTool(tool.id)}
-                  className="p-4 rounded-xl border text-left transition-all duration-200 relative"
+                  onClick={() => { setActiveTool(tool.id); setImgLoaded(false); }}
+                  className="p-4 rounded-xl text-left transition-all duration-200 relative overflow-hidden"
                   style={{
-                    background: activeTool === tool.id ? 'rgba(108,99,255,0.1)' : '#12121c',
-                    borderColor: activeTool === tool.id ? '#6c63ff' : 'rgba(120,120,255,0.12)',
+                    background: activeTool === tool.id ? 'var(--accent-lighter)' : 'var(--bg-input)',
+                    border: `1.5px solid ${activeTool === tool.id ? 'var(--accent)' : 'var(--border-primary)'}`,
                     cursor: 'pointer',
                   }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05, duration: 0.3 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
+                  {activeTool === tool.id && (
+                    <motion.div
+                      className="absolute inset-0 opacity-20"
+                      style={{
+                        background: 'linear-gradient(135deg, var(--accent), var(--cyan))',
+                        borderRadius: 'inherit',
+                      }}
+                      layoutId="tool-active-bg"
+                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    />
+                  )}
                   <span
-                    className="absolute top-2 right-2 text-xs px-1.5 py-0.5 rounded-full"
-                    style={{ background: 'rgba(0,229,255,0.1)', color: '#00e5ff', fontFamily: 'monospace', fontSize: '0.6rem' }}
+                    className="absolute top-2 right-2 tag-badge"
+                    style={{ background: 'var(--accent-lighter)', color: 'var(--accent)' }}
                   >
                     {tool.tag}
                   </span>
-                  <div className="text-xl mb-2">{tool.icon}</div>
-                  <div className="text-sm font-bold mb-1" style={{ color: '#e8e8ff' }}>{tool.title}</div>
-                  <div className="text-xs leading-relaxed" style={{ color: '#7878aa' }}>{tool.desc}</div>
-                </button>
+                  <div className="text-xl mb-2 relative z-10">{tool.icon}</div>
+                  <div className="text-sm font-bold mb-1 relative z-10" style={{ color: 'var(--text-primary)' }}>{tool.title}</div>
+                  <div className="text-xs leading-relaxed relative z-10" style={{ color: 'var(--text-muted)' }}>{tool.desc}</div>
+                </motion.button>
               ))}
             </div>
 
             {/* Preview Box */}
-            <div className="rounded-xl border p-5" style={{ background: '#08080e', borderColor: 'rgba(120,120,255,0.12)' }}>
-              <div className="text-xs mb-4 font-mono" style={{ color: '#00e5ff' }}>
+            <motion.div
+              className="rounded-xl p-5"
+              style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border-primary)' }}
+              layout
+            >
+              <div className="text-xs mb-4" style={{ color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>
                 // preview — {activeToolData?.title.toLowerCase()}
               </div>
               {previewUrl ? (
-                <img
-                  src={previewUrl}
-                  alt={`${activeTool} preview`}
-                  style={{ maxWidth: '100%', borderRadius: '10px' }}
-                  loading="lazy"
-                />
+                <div className="relative">
+                  {!imgLoaded && (
+                    <div className="skeleton" style={{ width: '100%', height: '200px' }} />
+                  )}
+                  <motion.img
+                    key={previewUrl}
+                    src={previewUrl}
+                    alt={`${activeTool} preview`}
+                    style={{ maxWidth: '100%', borderRadius: '10px', display: imgLoaded ? 'block' : 'none' }}
+                    loading="lazy"
+                    onLoad={() => setImgLoaded(true)}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: imgLoaded ? 1 : 0 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                </div>
               ) : (
-                <p className="text-sm text-center py-8" style={{ color: '#7878aa' }}>
+                <p className="text-sm text-center py-8" style={{ color: 'var(--text-muted)' }}>
                   Enter a GitHub username above to preview this tool.
                 </p>
               )}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* CTA */}
           <div className="text-center">
-            <button
+            <motion.button
               onClick={() => onNavigate('builder')}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all duration-300 hover:-translate-y-1"
-              style={{
-                background: 'linear-gradient(135deg, #6c63ff, #8b5cf6)',
-                color: '#fff',
-                boxShadow: '0 0 30px rgba(108,99,255,0.4)',
-              }}
+              className="btn-primary inline-flex items-center gap-2 px-6 py-3 text-sm"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               Add These to Your Profile <ArrowRight size={16} />
-            </button>
+            </motion.button>
           </div>
         </div>
       </section>
 
-      <div className="h-px" style={{ background: 'linear-gradient(90deg, transparent, #6c63ff, transparent)', opacity: 0.3 }} />
+      <div className="gradient-divider" />
 
       {/* FAQ */}
       <section className="py-16 px-6" id="faq">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
-            <div className="text-xs mb-3" style={{ color: '#00e5ff', fontFamily: 'monospace', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+            <motion.div
+              className="section-label mb-3"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+            >
               // help & faq
-            </div>
-            <h2 className="font-extrabold tracking-tight" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', letterSpacing: '-0.04em', color: '#e8e8ff' }}>
+            </motion.div>
+            <motion.h2
+              className="font-extrabold tracking-tight"
+              style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', letterSpacing: '-0.04em', color: 'var(--text-primary)' }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
               Frequently Asked Questions
-            </h2>
+            </motion.h2>
           </div>
 
           <div className="space-y-3">
             {FAQS.map((faq, i) => (
-              <div
+              <motion.div
                 key={i}
-                className="rounded-xl border overflow-hidden"
+                className="rounded-xl overflow-hidden glass-card"
                 style={{
-                  background: '#0d0d14',
-                  borderColor: openFaq === i ? 'rgba(108,99,255,0.4)' : 'rgba(120,120,255,0.12)',
-                  transition: 'border-color 0.2s',
+                  cursor: 'pointer',
+                  borderColor: openFaq === i ? 'var(--border-hover)' : undefined,
                 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.04, duration: 0.3 }}
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full px-6 py-5 text-left flex items-center justify-between transition-colors duration-200 hover:bg-white/[0.02]"
+                  className="w-full px-6 py-5 text-left flex items-center justify-between transition-colors duration-200"
                 >
-                  <span className="font-semibold text-sm pr-4" style={{ color: '#e8e8ff' }}>{faq.q}</span>
-                  <ChevronDown
-                    size={16}
-                    className="flex-shrink-0 transition-transform duration-200"
-                    style={{
-                      color: openFaq === i ? '#00e5ff' : '#7878aa',
-                      transform: openFaq === i ? 'rotate(180deg)' : 'rotate(0deg)',
-                    }}
-                  />
+                  <span className="font-semibold text-sm pr-4" style={{ color: 'var(--text-primary)' }}>{faq.q}</span>
+                  <motion.div
+                    animate={{ rotate: openFaq === i ? 180 : 0 }}
+                    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    <ChevronDown
+                      size={16}
+                      className="flex-shrink-0"
+                      style={{ color: openFaq === i ? 'var(--accent)' : 'var(--text-muted)' }}
+                    />
+                  </motion.div>
                 </button>
-                {openFaq === i && (
-                  <div className="px-6 pb-5 text-sm leading-relaxed" style={{ color: '#7878aa' }}>
-                    {faq.a}
-                  </div>
-                )}
-              </div>
+                <AnimatePresence initial={false}>
+                  {openFaq === i && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                      style={{ overflow: 'hidden' }}
+                    >
+                      <div className="px-6 pb-5 text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                        {faq.a}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
             ))}
           </div>
 
-          <div className="text-center mt-12">
-            <p className="text-sm mb-4" style={{ color: '#7878aa' }}>Still have questions?</p>
-            <button
+          <motion.div
+            className="text-center mt-12"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            <p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>Still have questions?</p>
+            <motion.button
               onClick={() => onNavigate('builder')}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-bold text-sm transition-all duration-300 hover:-translate-y-1"
-              style={{
-                background: 'linear-gradient(135deg, #6c63ff, #8b5cf6)',
-                color: '#fff',
-                boxShadow: '0 0 30px rgba(108,99,255,0.4)',
-              }}
+              className="btn-primary inline-flex items-center gap-2 px-6 py-3 text-sm"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               Try the Builder <ArrowRight size={16} />
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         </div>
       </section>
     </div>

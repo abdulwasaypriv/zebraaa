@@ -1,195 +1,153 @@
 import { useEffect, useRef } from 'react';
 
+// ─── Exact antigravity.google particle style ─────────────────────────────────
+// White bg via CSS, tiny blue (#3279F9) rectangular dashes scattered across
+// the full page, slowly drifting, scatter away from mouse cursor.
+
+interface Particle {
+  x: number;     // position (logical pixels)
+  y: number;
+  vx: number;
+  vy: number;
+  baseVx: number;
+  baseVy: number;
+  w: number;     // rect width
+  h: number;     // rect height
+  angle: number; // fixed rotation (radians)
+  alpha: number;
+}
+
+const BLUE = '#3279F9'; // exact antigravity.google blue
+
+function rand(min: number, max: number) {
+  return Math.random() * (max - min) + min;
+}
+
+function makeParticle(W: number, H: number): Particle {
+  // Mix of portrait and landscape tiny rects, like in the screenshot
+  const portrait = Math.random() > 0.4;
+  const w = portrait ? rand(2, 4)  : rand(5, 10);
+  const h = portrait ? rand(6, 12) : rand(2, 4);
+  const angle = rand(-0.5, 0.5);
+  const baseVx = rand(-0.08, 0.08);
+  const baseVy = rand(-0.18, -0.04); // mostly upward, slow
+  return {
+    x: rand(0, W),
+    y: rand(0, H),
+    vx: baseVx,
+    vy: baseVy,
+    baseVx,
+    baseVy,
+    w,
+    h,
+    angle,
+    alpha: rand(0.35, 0.75),
+  };
+}
+
 export default function ThreeBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mouseRef = useRef({ x: -9999, y: -9999 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
-    const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false });
-    if (!gl) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
     let animId: number;
-    let mouseX = 0;
-    let mouseY = 0;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      gl.viewport(0, 0, canvas.width, canvas.height);
+      canvas.width  = window.innerWidth  * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width  = window.innerWidth  + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
     resize();
+    window.addEventListener('resize', resize);
 
-    // ── Shaders ──────────────────────────────────────────────────────────────
-    const vsSource = `
-      attribute vec2 a_pos;
-      attribute vec3 a_col;
-      attribute float a_size;
-      varying vec3 v_col;
-      void main() {
-        gl_Position = vec4(a_pos, 0.0, 1.0);
-        gl_PointSize = a_size;
-        v_col = a_col;
-      }
-    `;
-    const fsSource = `
-      precision mediump float;
-      varying vec3 v_col;
-      void main() {
-        float d = length(gl_PointCoord - vec2(0.5));
-        if (d > 0.5) discard;
-        float alpha = 0.7 * (1.0 - d * 2.0);
-        gl_FragColor = vec4(v_col * alpha, alpha);
-      }
-    `;
+    const W = () => window.innerWidth;
+    const H = () => window.innerHeight;
 
-    function compileShader(type: number, src: string): WebGLShader {
-      const s = gl!.createShader(type)!;
-      gl!.shaderSource(s, src);
-      gl!.compileShader(s);
-      return s;
-    }
+    // ── Spawn ~280 particles spread across the full viewport ─────────────
+    const COUNT = 280;
+    const particles: Particle[] = Array.from({ length: COUNT }, () =>
+      makeParticle(W(), H())
+    );
 
-    const prog = gl.createProgram()!;
-    gl.attachShader(prog, compileShader(gl.VERTEX_SHADER, vsSource));
-    gl.attachShader(prog, compileShader(gl.FRAGMENT_SHADER, fsSource));
-    gl.linkProgram(prog);
-    gl.useProgram(prog);
-
-    const posLoc  = gl.getAttribLocation(prog, 'a_pos');
-    const colLoc  = gl.getAttribLocation(prog, 'a_col');
-    const sizeLoc = gl.getAttribLocation(prog, 'a_size');
-
-    // ── Particles ─────────────────────────────────────────────────────────────
-    const COUNT = 1400;
-    const pos = new Float32Array(COUNT * 2);
-    const col = new Float32Array(COUNT * 3);
-    const sizes = new Float32Array(COUNT);
-    const vel = new Float32Array(COUNT * 2);
-    const baseVel = new Float32Array(COUNT * 2);
-
-    const palette: [number, number, number][] = [
-      [0.42, 0.39, 1.00],  // violet
-      [0.00, 0.90, 1.00],  // cyan
-      [1.00, 0.42, 0.62],  // pink
-      [0.53, 0.33, 1.00],  // purple
-      [0.00, 0.74, 0.90],  // teal
-      [0.30, 0.60, 1.00],  // blue
-    ];
-
-    for (let i = 0; i < COUNT; i++) {
-      pos[i * 2]     = (Math.random() - 0.5) * 2;
-      pos[i * 2 + 1] = (Math.random() - 0.5) * 2;
-      const c = palette[Math.floor(Math.random() * palette.length)];
-      col[i * 3]     = c[0];
-      col[i * 3 + 1] = c[1];
-      col[i * 3 + 2] = c[2];
-      sizes[i]       = Math.random() * 3.0 + 0.5;
-      const speed    = (Math.random() * 0.00025 + 0.00008);
-      const angle    = Math.random() * Math.PI * 2;
-      baseVel[i * 2]     = Math.cos(angle) * speed;
-      baseVel[i * 2 + 1] = Math.sin(angle) * speed;
-      vel[i * 2]     = baseVel[i * 2];
-      vel[i * 2 + 1] = baseVel[i * 2 + 1];
-    }
-
-    // ── Buffers ───────────────────────────────────────────────────────────────
-    const posBuf  = gl.createBuffer()!;
-    const colBuf  = gl.createBuffer()!;
-    const sizeBuf = gl.createBuffer()!;
-
-    // Upload static color + size buffers once
-    gl.bindBuffer(gl.ARRAY_BUFFER, colBuf);
-    gl.bufferData(gl.ARRAY_BUFFER, col, gl.STATIC_DRAW);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, sizeBuf);
-    gl.bufferData(gl.ARRAY_BUFFER, sizes, gl.STATIC_DRAW);
-
-    // Upload initial position
-    gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
-    gl.bufferData(gl.ARRAY_BUFFER, pos, gl.DYNAMIC_DRAW);
-
-    // ── Blend ─────────────────────────────────────────────────────────────────
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-    gl.clearColor(0, 0, 0, 0);
-
-    // ── Animate ───────────────────────────────────────────────────────────────
-    let t = 0;
+    // ── Animate ───────────────────────────────────────────────────────────
     function animate() {
       animId = requestAnimationFrame(animate);
-      t += 0.005;
 
-      // Mouse repulsion
-      const mx = mouseX;
-      const my = mouseY;
+      const w = W();
+      const h = H();
+      const mx = mouseRef.current.x;
+      const my = mouseRef.current.y;
 
-      for (let i = 0; i < COUNT; i++) {
-        const px = pos[i * 2];
-        const py = pos[i * 2 + 1];
-        const dx = px - mx;
-        const dy = py - my;
-        const dist2 = dx * dx + dy * dy;
-        const repulseRadius = 0.18;
+      // Transparent clear — white bg comes from CSS on body
+      ctx!.clearRect(0, 0, w, h);
 
-        if (dist2 < repulseRadius * repulseRadius && dist2 > 0.00001) {
-          const dist = Math.sqrt(dist2);
-          const force = (repulseRadius - dist) / repulseRadius * 0.0008;
-          vel[i * 2]     += (dx / dist) * force;
-          vel[i * 2 + 1] += (dy / dist) * force;
+      ctx!.fillStyle = BLUE;
+
+      for (const p of particles) {
+        // ── Mouse repulsion ──────────────────────────────────────────────
+        const dx = p.x - mx;
+        const dy = p.y - my;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const REPEL = 100;
+
+        if (dist < REPEL && dist > 0.5) {
+          const strength = ((REPEL - dist) / REPEL) * 2.5;
+          p.vx += (dx / dist) * strength * 0.12;
+          p.vy += (dy / dist) * strength * 0.12;
         }
 
-        // Drift back toward base velocity
-        vel[i * 2]     += (baseVel[i * 2]     - vel[i * 2])     * 0.02;
-        vel[i * 2 + 1] += (baseVel[i * 2 + 1] - vel[i * 2 + 1]) * 0.02;
+        // Ease velocity back to base drift
+        p.vx += (p.baseVx - p.vx) * 0.04;
+        p.vy += (p.baseVy - p.vy) * 0.04;
 
-        pos[i * 2]     += vel[i * 2];
-        pos[i * 2 + 1] += vel[i * 2 + 1];
+        p.x += p.vx;
+        p.y += p.vy;
 
         // Wrap around edges
-        if (pos[i * 2]     >  1.05) pos[i * 2]     = -1.05;
-        if (pos[i * 2]     < -1.05) pos[i * 2]     =  1.05;
-        if (pos[i * 2 + 1] >  1.05) pos[i * 2 + 1] = -1.05;
-        if (pos[i * 2 + 1] < -1.05) pos[i * 2 + 1] =  1.05;
+        if (p.y < -20)       { p.y = h + 10; p.x = rand(0, w); }
+        if (p.y > h + 20)    { p.y = -10;    p.x = rand(0, w); }
+        if (p.x < -20)       { p.x = w + 10; }
+        if (p.x > w + 20)    { p.x = -10; }
+
+        // Draw
+        ctx!.save();
+        ctx!.globalAlpha = p.alpha;
+        ctx!.translate(p.x, p.y);
+        ctx!.rotate(p.angle);
+        ctx!.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx!.restore();
       }
 
-      gl!.clear(gl!.COLOR_BUFFER_BIT);
-
-      // Bind position (dynamic)
-      gl!.bindBuffer(gl!.ARRAY_BUFFER, posBuf);
-      gl!.bufferSubData(gl!.ARRAY_BUFFER, 0, pos);
-      gl!.enableVertexAttribArray(posLoc);
-      gl!.vertexAttribPointer(posLoc, 2, gl!.FLOAT, false, 0, 0);
-
-      // Bind color (static)
-      gl!.bindBuffer(gl!.ARRAY_BUFFER, colBuf);
-      gl!.enableVertexAttribArray(colLoc);
-      gl!.vertexAttribPointer(colLoc, 3, gl!.FLOAT, false, 0, 0);
-
-      // Bind size (static)
-      gl!.bindBuffer(gl!.ARRAY_BUFFER, sizeBuf);
-      gl!.enableVertexAttribArray(sizeLoc);
-      gl!.vertexAttribPointer(sizeLoc, 1, gl!.FLOAT, false, 0, 0);
-
-      gl!.drawArrays(gl!.POINTS, 0, COUNT);
+      ctx!.globalAlpha = 1;
     }
+
     animate();
 
-    // ── Events ────────────────────────────────────────────────────────────────
-    const onMouseMove = (e: MouseEvent) => {
-      // Convert screen coords to WebGL NDC (-1..1)
-      mouseX =  (e.clientX / window.innerWidth)  * 2 - 1;
-      mouseY = -((e.clientY / window.innerHeight) * 2 - 1);
+    // Mouse tracking
+    const onMove = (e: MouseEvent) => {
+      mouseRef.current.x = e.clientX;
+      mouseRef.current.y = e.clientY;
     };
-
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('resize', resize);
+    const onLeave = () => {
+      mouseRef.current.x = -9999;
+      mouseRef.current.y = -9999;
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseleave', onLeave);
 
     return () => {
       cancelAnimationFrame(animId);
-      window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('resize', resize);
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseleave', onLeave);
     };
   }, []);
 

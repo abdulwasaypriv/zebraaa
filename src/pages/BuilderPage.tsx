@@ -1,9 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ProfileData } from '../types';
 import { TECH } from '../lib/techData';
 import { generateMarkdown } from '../lib/generateMarkdown';
 import {
-  Copy, Check, Download, RefreshCw, ChevronDown, ChevronUp,
+  Copy, Check, Download, RefreshCw, ChevronDown,
   Sparkles, Github, Palette, BarChart3, Link2, Zap, Coffee, Rss
 } from 'lucide-react';
 
@@ -27,28 +28,48 @@ function SectionCard({ title, icon, children, defaultOpen = true }: {
   defaultOpen?: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  const contentRef = useRef<HTMLDivElement>(null);
+
   return (
-    <div
-      className="rounded-2xl border mb-4 overflow-hidden"
-      style={{ background: '#0d0d14', borderColor: 'rgba(120,120,255,0.12)' }}
+    <motion.div
+      className="rounded-2xl mb-4 overflow-hidden glass-card"
+      style={{ cursor: 'default' }}
+      initial={false}
+      layout
     >
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-6 py-4 text-left"
-        style={{ color: '#e8e8ff' }}
+        className="w-full flex items-center justify-between px-6 py-4 text-left group"
+        style={{ color: 'var(--text-primary)' }}
       >
         <div className="flex items-center gap-3 font-semibold text-sm">
-          <span style={{ color: '#00e5ff' }}>{icon}</span>
+          <span style={{ color: 'var(--accent)' }}>{icon}</span>
           {title}
         </div>
-        {open ? <ChevronUp size={16} style={{ color: '#7878aa' }} /> : <ChevronDown size={16} style={{ color: '#7878aa' }} />}
+        <motion.div
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <ChevronDown size={16} style={{ color: 'var(--text-muted)' }} />
+        </motion.div>
       </button>
-      {open && (
-        <div className="px-6 pb-6 border-t" style={{ borderColor: 'rgba(120,120,255,0.08)' }}>
-          <div className="pt-4">{children}</div>
-        </div>
-      )}
-    </div>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            ref={contentRef}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            style={{ overflow: 'hidden' }}
+          >
+            <div className="px-6 pb-6" style={{ borderTop: '1px solid var(--border-primary)' }}>
+              <div className="pt-4">{children}</div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
 
@@ -58,20 +79,14 @@ function InputField({ label, value, onChange, placeholder, type = 'text' }: {
 }) {
   return (
     <div className="mb-4">
-      <label className="block text-xs font-medium mb-1.5" style={{ color: '#7878aa' }}>{label}</label>
+      <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>{label}</label>
       <input
         type={type}
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full px-3 py-2 rounded-lg text-sm outline-none transition-colors"
-        style={{
-          background: 'rgba(255,255,255,0.04)',
-          border: '1px solid rgba(120,120,255,0.15)',
-          color: '#e8e8ff',
-        }}
-        onFocus={e => (e.target.style.borderColor = 'rgba(108,99,255,0.5)')}
-        onBlur={e => (e.target.style.borderColor = 'rgba(120,120,255,0.15)')}
+        className="w-full px-4 py-2.5 rounded-xl text-sm outline-none glass-input"
+        style={{ color: 'var(--text-primary)' }}
       />
     </div>
   );
@@ -83,20 +98,14 @@ function TextareaField({ label, value, onChange, placeholder, rows = 3 }: {
 }) {
   return (
     <div className="mb-4">
-      <label className="block text-xs font-medium mb-1.5" style={{ color: '#7878aa' }}>{label}</label>
+      <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>{label}</label>
       <textarea
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         rows={rows}
-        className="w-full px-3 py-2 rounded-lg text-sm outline-none transition-colors resize-none"
-        style={{
-          background: 'rgba(255,255,255,0.04)',
-          border: '1px solid rgba(120,120,255,0.15)',
-          color: '#e8e8ff',
-        }}
-        onFocus={e => (e.target.style.borderColor = 'rgba(108,99,255,0.5)')}
-        onBlur={e => (e.target.style.borderColor = 'rgba(120,120,255,0.15)')}
+        className="w-full px-4 py-2.5 rounded-xl text-sm outline-none resize-none glass-input"
+        style={{ color: 'var(--text-primary)' }}
       />
     </div>
   );
@@ -108,16 +117,16 @@ function Toggle({ label, checked, onChange, desc }: {
   return (
     <div className="flex items-start justify-between gap-4 mb-3">
       <div>
-        <div className="text-sm font-medium" style={{ color: '#e8e8ff' }}>{label}</div>
-        {desc && <div className="text-xs mt-0.5" style={{ color: '#7878aa' }}>{desc}</div>}
+        <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{label}</div>
+        {desc && <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{desc}</div>}
       </div>
       <button
         onClick={() => onChange(!checked)}
-        className="relative flex-shrink-0 w-10 h-5 rounded-full transition-colors duration-200"
-        style={{ background: checked ? '#6c63ff' : 'rgba(120,120,255,0.2)' }}
+        className="toggle-track"
+        style={{ background: checked ? 'var(--accent)' : 'rgba(108,99,255,0.15)' }}
       >
         <span
-          className="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200"
+          className="toggle-thumb"
           style={{ transform: checked ? 'translateX(22px)' : 'translateX(2px)' }}
         />
       </button>
@@ -236,21 +245,30 @@ export default function BuilderPage({ data, setData }: BuilderPageProps) {
   return (
     <div className="pt-20 pb-16 px-4 relative z-10 min-h-screen">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-10">
+        <motion.div
+          className="text-center mb-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <h1
-            className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2"
-            style={{ background: 'linear-gradient(135deg, #6c63ff, #00e5ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+            className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2 gradient-text-static"
           >
             Profile Builder
           </h1>
-          <p className="text-sm" style={{ color: '#7878aa' }}>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             Fill in your details on the left — see your README update live on the right.
           </p>
-        </div>
+        </motion.div>
 
         <div className="flex flex-col lg:flex-row gap-6">
           {/* ===== LEFT PANEL ===== */}
-          <div className="w-full lg:w-[420px] flex-shrink-0">
+          <motion.div
+            className="w-full lg:w-[420px] flex-shrink-0"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+          >
 
             {/* GitHub Import */}
             <SectionCard title="GitHub Import" icon={<Github size={16} />}>
@@ -260,28 +278,32 @@ export default function BuilderPage({ data, setData }: BuilderPageProps) {
                   value={data.username}
                   onChange={e => update('username', e.target.value)}
                   placeholder="your-github-username"
-                  className="flex-1 px-3 py-2 rounded-lg text-sm outline-none"
-                  style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(120,120,255,0.15)',
-                    color: '#e8e8ff',
-                  }}
+                  className="flex-1 px-4 py-2.5 rounded-xl text-sm outline-none glass-input"
+                  style={{ color: 'var(--text-primary)' }}
                 />
-                <button
+                <motion.button
                   onClick={handleGitHubImport}
                   disabled={!data.username || githubImporting}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all"
                   style={{
-                    background: data.username ? 'rgba(108,99,255,0.2)' : 'rgba(120,120,255,0.08)',
-                    color: data.username ? '#00e5ff' : '#7878aa',
-                    border: '1px solid rgba(108,99,255,0.2)',
+                    background: data.username ? 'var(--accent-lighter)' : 'rgba(108,99,255,0.05)',
+                    color: data.username ? 'var(--accent)' : 'var(--text-muted)',
+                    border: '1.5px solid var(--border-primary)',
                   }}
+                  whileHover={data.username ? { scale: 1.03 } : {}}
+                  whileTap={data.username ? { scale: 0.97 } : {}}
                 >
-                  {githubImporting ? <RefreshCw size={14} className="animate-spin" /> : <Github size={14} />}
+                  {githubImporting ? (
+                    <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}>
+                      <RefreshCw size={14} />
+                    </motion.div>
+                  ) : (
+                    <Github size={14} />
+                  )}
                   Fetch
-                </button>
+                </motion.button>
               </div>
-              <p className="text-xs mt-2" style={{ color: '#7878aa' }}>
+              <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
                 Auto-fills your name, bio, and social links from GitHub.
               </p>
             </SectionCard>
@@ -306,85 +328,101 @@ export default function BuilderPage({ data, setData }: BuilderPageProps) {
                 placeholder="5 years full-stack dev, React/Node expert, built SaaS products, open source contributor..."
                 rows={4}
               />
-              <button
+              <motion.button
                 onClick={handleAIBio}
                 disabled={!aiBioInput.trim() || aiLoading}
-                className="w-full py-2.5 rounded-lg text-sm font-semibold mb-4 transition-all"
+                className="w-full py-2.5 rounded-xl text-sm font-semibold mb-4 transition-all"
                 style={{
-                  background: aiBioInput.trim() ? 'linear-gradient(135deg, #6c63ff, #8b5cf6)' : 'rgba(120,120,255,0.1)',
-                  color: aiBioInput.trim() ? '#fff' : '#7878aa',
+                  background: aiBioInput.trim() ? 'linear-gradient(135deg, #6c63ff, #8b5cf6)' : 'rgba(108,99,255,0.08)',
+                  color: aiBioInput.trim() ? '#fff' : 'var(--text-muted)',
                 }}
+                whileHover={aiBioInput.trim() ? { scale: 1.02 } : {}}
+                whileTap={aiBioInput.trim() ? { scale: 0.98 } : {}}
               >
                 {aiLoading ? 'Generating...' : '✦ Generate Bio Styles'}
-              </button>
-              {aiBios.length > 0 && (
-                <div className="space-y-3">
-                  {['Professional', 'Creative', 'Minimalist'].map((style, i) => (
-                    aiBios[i] ? (
-                      <div key={i} className="p-3 rounded-lg border" style={{ borderColor: 'rgba(120,120,255,0.15)', background: 'rgba(255,255,255,0.02)' }}>
-                        <div className="text-xs font-semibold mb-1" style={{ color: '#00e5ff' }}>{style}</div>
-                        <p className="text-xs leading-relaxed mb-2" style={{ color: '#e8e8ff' }}>{aiBios[i]}</p>
-                        <button
-                          onClick={() => update('bio', aiBios[i])}
-                          className="text-xs px-2 py-1 rounded font-medium"
-                          style={{ background: 'rgba(108,99,255,0.2)', color: '#6c63ff' }}
+              </motion.button>
+              <AnimatePresence>
+                {aiBios.length > 0 && (
+                  <motion.div
+                    className="space-y-3"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    {['Professional', 'Creative', 'Minimalist'].map((style, i) => (
+                      aiBios[i] ? (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.1, type: 'spring', stiffness: 200 }}
+                          className="p-4 rounded-xl glass-card"
+                          style={{ cursor: 'default' }}
                         >
-                          Use this
-                        </button>
-                      </div>
-                    ) : null
-                  ))}
-                </div>
-              )}
+                          <div className="text-xs font-semibold mb-1" style={{ color: 'var(--accent)' }}>{style}</div>
+                          <p className="text-xs leading-relaxed mb-2" style={{ color: 'var(--text-primary)' }}>{aiBios[i]}</p>
+                          <motion.button
+                            onClick={() => update('bio', aiBios[i])}
+                            className="text-xs px-3 py-1.5 rounded-lg font-medium"
+                            style={{ background: 'var(--accent-lighter)', color: 'var(--accent)' }}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            Use this
+                          </motion.button>
+                        </motion.div>
+                      ) : null
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </SectionCard>
 
             {/* Design */}
             <SectionCard title="Design & Layout" icon={<Palette size={16} />} defaultOpen={false}>
               <div className="mb-4">
-                <label className="block text-xs font-medium mb-2" style={{ color: '#7878aa' }}>Layout</label>
+                <label className="block text-xs font-medium mb-2" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>Layout</label>
                 <div className="grid grid-cols-2 gap-2">
                   {(['center', 'left', 'grid', 'side'] as const).map(l => (
-                    <button
+                    <motion.button
                       key={l}
                       onClick={() => update('layout', l)}
-                      className="py-2 rounded-lg text-xs font-medium capitalize transition-all"
+                      className="py-2.5 rounded-xl text-xs font-medium capitalize transition-all"
                       style={{
-                        background: data.layout === l ? 'rgba(108,99,255,0.25)' : 'rgba(255,255,255,0.04)',
-                        color: data.layout === l ? '#00e5ff' : '#7878aa',
-                        border: `1px solid ${data.layout === l ? 'rgba(108,99,255,0.4)' : 'rgba(120,120,255,0.1)'}`,
+                        background: data.layout === l ? 'var(--accent-lighter)' : 'var(--bg-input)',
+                        color: data.layout === l ? 'var(--accent)' : 'var(--text-muted)',
+                        border: `1.5px solid ${data.layout === l ? 'var(--border-hover)' : 'var(--border-primary)'}`,
                       }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                     >
                       {l}
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               </div>
               <div className="mb-4">
-                <label className="block text-xs font-medium mb-2" style={{ color: '#7878aa' }}>Stats Theme</label>
+                <label className="block text-xs font-medium mb-2" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>Stats Theme</label>
                 <select
                   value={data.statsTheme}
                   onChange={e => update('statsTheme', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg text-sm outline-none"
-                  style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(120,120,255,0.15)',
-                    color: '#e8e8ff',
-                  }}
+                  className="w-full px-4 py-2.5 rounded-xl text-sm outline-none glass-input"
+                  style={{ color: 'var(--text-primary)' }}
                 >
                   {THEMES.map(t => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
               <div className="mb-4">
-                <label className="block text-xs font-medium mb-2" style={{ color: '#7878aa' }}>Brand Color</label>
+                <label className="block text-xs font-medium mb-2" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>Brand Color</label>
                 <div className="flex items-center gap-3">
                   <input
                     type="color"
                     value={data.brandColor}
                     onChange={e => update('brandColor', e.target.value)}
-                    className="w-10 h-10 rounded-lg cursor-pointer"
-                    style={{ background: 'none', border: '1px solid rgba(120,120,255,0.2)', padding: '2px' }}
+                    className="w-10 h-10 rounded-xl cursor-pointer"
+                    style={{ background: 'none', border: '1.5px solid var(--border-primary)', padding: '2px' }}
                   />
-                  <span className="text-sm font-mono" style={{ color: '#e8e8ff' }}>{data.brandColor}</span>
+                  <span className="text-sm" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>{data.brandColor}</span>
                 </div>
               </div>
             </SectionCard>
@@ -414,42 +452,52 @@ export default function BuilderPage({ data, setData }: BuilderPageProps) {
             <SectionCard title="Tech Stack" icon={<Zap size={16} />} defaultOpen={false}>
               <div className="flex flex-wrap gap-1.5 mb-4">
                 {CATEGORIES.map(cat => (
-                  <button
+                  <motion.button
                     key={cat}
                     onClick={() => setTechCategory(cat)}
-                    className="px-3 py-1 rounded-full text-xs font-medium transition-all"
+                    className="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
                     style={{
-                      background: techCategory === cat ? 'rgba(108,99,255,0.25)' : 'rgba(255,255,255,0.04)',
-                      color: techCategory === cat ? '#00e5ff' : '#7878aa',
-                      border: `1px solid ${techCategory === cat ? 'rgba(108,99,255,0.4)' : 'rgba(120,120,255,0.1)'}`,
+                      background: techCategory === cat ? 'var(--accent-lighter)' : 'var(--bg-input)',
+                      color: techCategory === cat ? 'var(--accent)' : 'var(--text-muted)',
+                      border: `1.5px solid ${techCategory === cat ? 'var(--border-hover)' : 'var(--border-primary)'}`,
                     }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
                     {cat}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
               <div className="grid grid-cols-2 gap-1.5 max-h-64 overflow-y-auto pr-1">
                 {filteredTech.map(({ name, i }) => (
-                  <button
+                  <motion.button
                     key={i}
                     onClick={() => toggleTech(i)}
-                    className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-all text-left"
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs transition-all text-left"
                     style={{
-                      background: data.selectedTechs.has(i) ? 'rgba(108,99,255,0.2)' : 'rgba(255,255,255,0.03)',
-                      color: data.selectedTechs.has(i) ? '#e8e8ff' : '#7878aa',
-                      border: `1px solid ${data.selectedTechs.has(i) ? 'rgba(108,99,255,0.4)' : 'rgba(120,120,255,0.08)'}`,
+                      background: data.selectedTechs.has(i) ? 'var(--accent-lighter)' : 'var(--bg-input)',
+                      color: data.selectedTechs.has(i) ? 'var(--text-primary)' : 'var(--text-muted)',
+                      border: `1.5px solid ${data.selectedTechs.has(i) ? 'var(--border-hover)' : 'var(--border-primary)'}`,
                     }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    <span
-                      className="w-3 h-3 rounded-sm flex-shrink-0"
-                      style={{ background: data.selectedTechs.has(i) ? '#6c63ff' : 'rgba(120,120,255,0.2)' }}
-                    />
+                    <motion.span
+                      className="w-3.5 h-3.5 rounded flex-shrink-0 flex items-center justify-center"
+                      style={{ background: data.selectedTechs.has(i) ? 'var(--accent)' : 'rgba(108,99,255,0.15)' }}
+                      animate={data.selectedTechs.has(i) ? { scale: [1, 1.3, 1] } : {}}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {data.selectedTechs.has(i) && (
+                        <Check size={8} color="white" strokeWidth={3} />
+                      )}
+                    </motion.span>
                     {name}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
               {data.selectedTechs.size > 0 && (
-                <p className="text-xs mt-3" style={{ color: '#7878aa' }}>
+                <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>
                   {data.selectedTechs.size} tech{data.selectedTechs.size > 1 ? 's' : ''} selected
                 </p>
               )}
@@ -495,87 +543,134 @@ export default function BuilderPage({ data, setData }: BuilderPageProps) {
               <InputField label="Ko-fi username" value={data.kofi} onChange={v => update('kofi', v)} placeholder="username" />
               <InputField label="PayPal username / link" value={data.paypal} onChange={v => update('paypal', v)} placeholder="username" />
             </SectionCard>
-          </div>
+          </motion.div>
 
           {/* ===== RIGHT PANEL — PREVIEW ===== */}
-          <div className="flex-1 min-w-0">
+          <motion.div
+            className="flex-1 min-w-0"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.25 }}
+          >
             <div
-              className="sticky top-20 rounded-2xl border overflow-hidden"
-              style={{ background: '#0d0d14', borderColor: 'rgba(120,120,255,0.12)', maxHeight: 'calc(100vh - 6rem)' }}
+              className="sticky top-20 rounded-2xl overflow-hidden glass-card"
+              style={{ maxHeight: 'calc(100vh - 6rem)', cursor: 'default' }}
             >
               {/* Tab bar */}
-              <div className="flex items-center justify-between px-5 py-3 border-b" style={{ borderColor: 'rgba(120,120,255,0.08)' }}>
-                <div className="flex gap-1">
+              <div className="flex items-center justify-between px-5 py-3" style={{ borderBottom: '1px solid var(--border-primary)' }}>
+                <div className="flex gap-1 p-1 rounded-xl" style={{ background: 'var(--bg-input)' }}>
                   {(['preview', 'markdown'] as const).map(tab => (
-                    <button
+                    <motion.button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className="px-4 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all"
+                      className="px-4 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all relative"
                       style={{
-                        background: activeTab === tab ? 'rgba(108,99,255,0.2)' : 'transparent',
-                        color: activeTab === tab ? '#00e5ff' : '#7878aa',
+                        color: activeTab === tab ? 'var(--accent)' : 'var(--text-muted)',
                       }}
+                      whileTap={{ scale: 0.95 }}
                     >
-                      {tab}
-                    </button>
+                      {activeTab === tab && (
+                        <motion.div
+                          layoutId="tab-indicator"
+                          className="absolute inset-0 rounded-lg"
+                          style={{ background: 'var(--bg-secondary)', boxShadow: 'var(--shadow-sm)' }}
+                          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                        />
+                      )}
+                      <span className="relative z-10">{tab}</span>
+                    </motion.button>
                   ))}
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
+                  <motion.button
                     onClick={handleCopy}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
                     style={{
-                      background: copied ? 'rgba(16,185,129,0.15)' : 'rgba(108,99,255,0.15)',
-                      color: copied ? '#10b981' : '#00e5ff',
-                      border: `1px solid ${copied ? 'rgba(16,185,129,0.3)' : 'rgba(108,99,255,0.3)'}`,
+                      background: copied ? 'rgba(16,185,129,0.1)' : 'var(--accent-lighter)',
+                      color: copied ? '#10b981' : 'var(--accent)',
+                      border: `1.5px solid ${copied ? 'rgba(16,185,129,0.3)' : 'var(--border-primary)'}`,
                     }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
-                    {copied ? <Check size={12} /> : <Copy size={12} />}
+                    <AnimatePresence mode="wait">
+                      {copied ? (
+                        <motion.div key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
+                          <Check size={12} />
+                        </motion.div>
+                      ) : (
+                        <motion.div key="copy" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
+                          <Copy size={12} />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                     {copied ? 'Copied!' : 'Copy'}
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
                     onClick={handleDownload}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
                     style={{
-                      background: 'rgba(255,255,255,0.05)',
-                      color: '#7878aa',
-                      border: '1px solid rgba(120,120,255,0.15)',
+                      background: 'var(--bg-input)',
+                      color: 'var(--text-muted)',
+                      border: '1.5px solid var(--border-primary)',
                     }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
                     <Download size={12} />
                     .md
-                  </button>
+                  </motion.button>
                 </div>
               </div>
 
               {/* Content */}
               <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 12rem)' }}>
-                {activeTab === 'markdown' ? (
-                  <pre
-                    className="p-5 text-xs leading-relaxed overflow-x-auto"
-                    style={{ color: '#a0a0cc', fontFamily: 'monospace', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
-                  >
-                    {markdown || '# Your README will appear here\n\nFill in your details on the left to get started.'}
-                  </pre>
-                ) : (
-                  <div className="p-5">
-                    {!data.username && !data.name ? (
-                      <div className="text-center py-20">
-                        <div className="text-4xl mb-4">✦</div>
-                        <p className="text-sm" style={{ color: '#7878aa' }}>
-                          Fill in your GitHub username or name to see your preview.
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="prose prose-invert max-w-none text-sm" style={{ color: '#e8e8ff' }}>
-                        <MarkdownPreview markdown={markdown} />
-                      </div>
-                    )}
-                  </div>
-                )}
+                <AnimatePresence mode="wait">
+                  {activeTab === 'markdown' ? (
+                    <motion.pre
+                      key="markdown"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="p-5 text-xs leading-relaxed overflow-x-auto"
+                      style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+                    >
+                      {markdown || '# Your README will appear here\n\nFill in your details on the left to get started.'}
+                    </motion.pre>
+                  ) : (
+                    <motion.div
+                      key="preview"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="p-5"
+                    >
+                      {!data.username && !data.name ? (
+                        <div className="text-center py-20">
+                          <motion.div
+                            className="text-4xl mb-4"
+                            animate={{ rotate: [0, 10, -10, 0] }}
+                            transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
+                          >
+                            ✦
+                          </motion.div>
+                          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                            Fill in your GitHub username or name to see your preview.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="prose max-w-none text-sm" style={{ color: 'var(--text-primary)' }}>
+                          <MarkdownPreview markdown={markdown} />
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
@@ -584,13 +679,13 @@ export default function BuilderPage({ data, setData }: BuilderPageProps) {
 
 function MarkdownPreview({ markdown }: { markdown: string }) {
   const html = markdown
-    .replace(/^# (.+)$/gm, '<h1 style="font-size:1.5rem;font-weight:800;margin-bottom:0.5rem;color:#e8e8ff">$1</h1>')
-    .replace(/^## (.+)$/gm, '<h2 style="font-size:1.25rem;font-weight:700;margin-bottom:0.4rem;color:#e8e8ff;margin-top:1rem">$1</h2>')
-    .replace(/^### (.+)$/gm, '<h3 style="font-size:1rem;font-weight:600;margin-bottom:0.3rem;color:#a0a0cc;margin-top:0.8rem">$1</h3>')
+    .replace(/^# (.+)$/gm, '<h1 style="font-size:1.5rem;font-weight:800;margin-bottom:0.5rem;color:var(--text-primary)">$1</h1>')
+    .replace(/^## (.+)$/gm, '<h2 style="font-size:1.25rem;font-weight:700;margin-bottom:0.4rem;color:var(--text-primary);margin-top:1rem">$1</h2>')
+    .replace(/^### (.+)$/gm, '<h3 style="font-size:1rem;font-weight:600;margin-bottom:0.3rem;color:var(--text-secondary);margin-top:0.8rem">$1</h3>')
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/^- (.+)$/gm, '<li style="margin-bottom:0.25rem;color:#c0c0dd">$1</li>')
+    .replace(/^- (.+)$/gm, '<li style="margin-bottom:0.25rem;color:var(--text-secondary)">$1</li>')
     .replace(/(<li[^>]*>.*<\/li>\n?)+/g, '<ul style="padding-left:1.25rem;margin-bottom:0.75rem">$&</ul>')
-    .replace(/\[!\[([^\]]+)\]\([^)]+\)\]\([^)]+\)/g, '<span style="display:inline-block;background:rgba(108,99,255,0.15);color:#00e5ff;padding:2px 8px;border-radius:4px;font-size:0.7rem;margin:2px">$1</span>')
+    .replace(/\[!\[([^\]]+)\]\([^)]+\)\]\([^)]+\)/g, '<span style="display:inline-block;background:var(--accent-lighter);color:var(--accent);padding:2px 8px;border-radius:4px;font-size:0.7rem;margin:2px">$1</span>')
     .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%;height:auto;border-radius:6px;margin:4px 0" />')
     .replace(/\n\n/g, '<br/><br/>')
     .replace(/\n/g, '<br/>');
