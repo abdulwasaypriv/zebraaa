@@ -19,7 +19,7 @@ export default function Footer() {
           <div
             className="text-2xl font-extrabold tracking-tight mb-3 gradient-text-static inline-block"
           >
-            ProfileCraft
+            GitGloss
           </div>
         </motion.div>
 
@@ -56,7 +56,7 @@ export default function Footer() {
         </motion.div>
 
         <p className="text-xs" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-          crafted with ✦ by ProfileCraft • MIT License
+          crafted with ✦ by GitGloss • MIT License
         </p>
       </div>
     </footer>

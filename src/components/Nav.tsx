@@ -57,7 +57,7 @@ export default function Nav({ currentPage, onNavigate }: NavProps) {
                 WebkitTextFillColor: 'transparent',
               }}
             >
-              Profile<span style={{ WebkitTextFillColor: '#f43f8f' }}>Craft</span>
+              Git<span style={{ WebkitTextFillColor: '#f43f8f' }}>Gloss</span>
             </motion.button>
 
             {/* Desktop nav */}

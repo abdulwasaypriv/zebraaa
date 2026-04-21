@@ -74,7 +74,7 @@ const TESTIMONIALS = [
   { quote: '"One-click GitHub import is a game changer. My whole stack was selected in 2 seconds."', author: '@rustacean99' },
   { quote: '"This tool is miles ahead of GPRM. The design and UX are on another level."', author: '@devguru_js' },
   { quote: '"My profile looks so professional now. Got compliments from two recruiters already!"', author: '@carla_dev' },
-  { quote: '"Clean, fast, free. What more could you ask for? Thank you ProfileCraft team!"', author: '@open_src_fan' },
+  { quote: '"Clean, fast, free. What more could you ask for? Thank you GitGloss team!"', author: '@open_src_fan' },
 ];
 
 export default function HomePage({ onNavigate }: HomePageProps) {
@@ -240,7 +240,7 @@ export default function HomePage({ onNavigate }: HomePageProps) {
               viewport={{ once: true }}
               transition={{ delay: 0.2, duration: 0.5 }}
             >
-              ProfileCraft goes beyond basic generators with AI-powered tools, live previews, and dynamic widgets that set your profile apart.
+              GitGloss goes beyond basic generators with AI-powered tools, live previews, and dynamic widgets that set your profile apart.
             </motion.p>
           </div>
 

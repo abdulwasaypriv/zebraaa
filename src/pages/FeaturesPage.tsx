@@ -44,7 +44,7 @@ const FEATURES = [
     icon: <Rss size={22} />,
     tag: 'Automated',
     title: 'Dynamic Blog Post Widget',
-    desc: 'Connect your Medium or Dev.to RSS feed. ProfileCraft generates a complete GitHub Actions workflow snippet that auto-updates your latest articles.',
+    desc: 'Connect your Medium or Dev.to RSS feed. GitGloss generates a complete GitHub Actions workflow snippet that auto-updates your latest articles.',
     highlight: 'Your README stays fresh automatically.',
     color: '#f59e0b',
   },
@@ -107,18 +107,18 @@ const FEATURES = [
 ];
 
 const COMPARISON = [
-  { feature: 'AI Bio Generation', profilecraft: true, gprm: false },
-  { feature: 'One-Click GitHub Import', profilecraft: true, gprm: false },
-  { feature: 'Real-Time Live Preview', profilecraft: true, gprm: false },
-  { feature: 'Layout Presets (4 options)', profilecraft: true, gprm: false },
-  { feature: 'Brand Color System', profilecraft: true, gprm: false },
-  { feature: 'LeetCode Stats Widget', profilecraft: true, gprm: false },
-  { feature: 'CodeWars Badge', profilecraft: true, gprm: false },
-  { feature: 'Blog Post Automation', profilecraft: true, gprm: false },
-  { feature: 'Tech Stack Icons', profilecraft: true, gprm: true },
-  { feature: 'GitHub Stats Cards', profilecraft: true, gprm: true },
-  { feature: 'Social Links', profilecraft: true, gprm: true },
-  { feature: 'Export README.md', profilecraft: true, gprm: true },
+  { feature: 'AI Bio Generation', GitGloss: true, gprm: false },
+  { feature: 'One-Click GitHub Import', GitGloss: true, gprm: false },
+  { feature: 'Real-Time Live Preview', GitGloss: true, gprm: false },
+  { feature: 'Layout Presets (4 options)', GitGloss: true, gprm: false },
+  { feature: 'Brand Color System', GitGloss: true, gprm: false },
+  { feature: 'LeetCode Stats Widget', GitGloss: true, gprm: false },
+  { feature: 'CodeWars Badge', GitGloss: true, gprm: false },
+  { feature: 'Blog Post Automation', GitGloss: true, gprm: false },
+  { feature: 'Tech Stack Icons', GitGloss: true, gprm: true },
+  { feature: 'GitHub Stats Cards', GitGloss: true, gprm: true },
+  { feature: 'Social Links', GitGloss: true, gprm: true },
+  { feature: 'Export README.md', GitGloss: true, gprm: true },
 ];
 
 export default function FeaturesPage({ onNavigate }: FeaturesPageProps) {
@@ -138,7 +138,7 @@ export default function FeaturesPage({ onNavigate }: FeaturesPageProps) {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.1 }}
           >
-            // why profilecraft
+            // why GitGloss
           </motion.div>
           <motion.h1
             className="font-extrabold tracking-tight mb-4"
@@ -230,7 +230,7 @@ export default function FeaturesPage({ onNavigate }: FeaturesPageProps) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            ProfileCraft vs GPRM
+            GitGloss vs GPRM
           </motion.h2>
           <motion.p
             className="mb-12"
@@ -239,7 +239,7 @@ export default function FeaturesPage({ onNavigate }: FeaturesPageProps) {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
-            See exactly what makes ProfileCraft the smarter choice.
+            See exactly what makes GitGloss the smarter choice.
           </motion.p>
 
           <motion.div
@@ -255,7 +255,7 @@ export default function FeaturesPage({ onNavigate }: FeaturesPageProps) {
               style={{ background: 'var(--bg-tertiary)', borderBottom: '1px solid var(--border-primary)' }}
             >
               <div style={{ color: 'var(--text-muted)' }}>Feature</div>
-              <div className="text-center" style={{ color: 'var(--accent)' }}>ProfileCraft</div>
+              <div className="text-center" style={{ color: 'var(--accent)' }}>GitGloss</div>
               <div className="text-center" style={{ color: 'var(--text-muted)' }}>GPRM</div>
             </div>
             {COMPARISON.map((row, i) => (
@@ -276,7 +276,7 @@ export default function FeaturesPage({ onNavigate }: FeaturesPageProps) {
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.04 + 0.15, type: 'spring', stiffness: 400, damping: 15 }}
                   >
-                    {row.profilecraft ? '✅' : '❌'}
+                    {row.GitGloss ? '✅' : '❌'}
                   </motion.span>
                 </div>
                 <div className="text-center text-lg">
@@ -317,7 +317,7 @@ export default function FeaturesPage({ onNavigate }: FeaturesPageProps) {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
-            Join thousands of developers who use ProfileCraft to make their first impression count.
+            Join thousands of developers who use GitGloss to make their first impression count.
           </motion.p>
           <motion.button
             onClick={() => onNavigate('builder')}

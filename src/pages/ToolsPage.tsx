@@ -84,7 +84,7 @@ const FAQS = [
   },
   {
     q: 'Do I need to know Markdown or HTML?',
-    a: 'No coding knowledge needed. ProfileCraft is a complete no-code solution. Fill in the fields, toggle your preferences, and copy or download the generated README.',
+    a: 'No coding knowledge needed. GitGloss is a complete no-code solution. Fill in the fields, toggle your preferences, and copy or download the generated README.',
   },
   {
     q: 'How do I use the generated README?',
@@ -104,11 +104,11 @@ const FAQS = [
   },
   {
     q: 'Is this tool completely free?',
-    a: 'Completely free, forever. No account required, no watermarks, no limitations. ProfileCraft is open source and will always remain free for the community.',
+    a: 'Completely free, forever. No account required, no watermarks, no limitations. GitGloss is open source and will always remain free for the community.',
   },
   {
     q: 'How do the blog post dynamic widgets work?',
-    a: 'Connect your Medium RSS feed URL or Dev.to username. ProfileCraft will include a GitHub Actions workflow YAML snippet in your markdown. Paste this into your repository\'s .github/workflows/ folder and your README will auto-update with your latest posts on a schedule.',
+    a: 'Connect your Medium RSS feed URL or Dev.to username. GitGloss will include a GitHub Actions workflow YAML snippet in your markdown. Paste this into your repository\'s .github/workflows/ folder and your README will auto-update with your latest posts on a schedule.',
   },
   {
     q: 'Can I use LeetCode and CodeWars stats?',
